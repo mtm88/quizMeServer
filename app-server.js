@@ -1,7 +1,8 @@
 /**
  * Created by pc on 2016-03-26.
  */
-var userData = require('./src/userData/service/userDataService');
+var userData = require('./src/userData/service/userDataModels');
+var friendList = require('./src/userData/service/friendListModels');
 
 var express = require('express');
 var cors = require('cors');
@@ -14,6 +15,8 @@ var multer  = require('multer');
 var morgan = require('morgan');
 
 var jwt = require('jsonwebtoken');
+var secret = 'dupabizona';
+app.set('pmSecret', secret);
 
 var bodyParser = require('body-parser');
 app.use(bodyParser.urlencoded({'extended':'true'}));
@@ -43,8 +46,11 @@ app.post('/api/registerNewUser', userData.registerNewUser);
 
 app.post('/api/jwtUserLogin', userData.jwtUserLogin);
 
+//app.post('/api/setOnlineStatus', friendList.setOnlineStatus);
+
 app.use(function(req, res, next) {
 
+  console.log(req.body.FBverified);
   if (req.body.FBverified == true) {
     next();
   }
@@ -55,12 +61,14 @@ app.use(function(req, res, next) {
 
   if (token) {
 
-    jwt.verify(token, app.get('superSecret'), function(err, decoded) {
+    jwt.verify(token, app.get('pmSecret'), function(err, decoded) {
       if(err) {
         return res.json({ jwtTokenAuth: false, message: 'Failed to authenticate token'});
       } else {
+        res.json({ jwtTokenAuth: true, message: 'Token authenticated'});
         req.decoded = decoded;
         next();
+
       }
     });
 

@@ -32,8 +32,16 @@ var jwtUserSchema = new Schema ({
 
 });
 
+var onlineStatusSchema = new Schema ({
+
+  userDbId : String,
+  Online: Boolean
+
+});
+
 var userData = mongoose.model('User', userSchema);
 var jwtUserData = mongoose.model('jwtUser', jwtUserSchema);
+var onlineStatus = mongoose.model('onlineStatus', onlineStatusSchema);
 
 
 exports.registerNewUser = function(req, res) {
@@ -88,8 +96,9 @@ exports.jwtUserLogin = function(req, res) {
       console.log("uzytkownik nie istnieje");
       res.json({ userExists : false, message : "User doesn't exist" });
     } else if(userInfo) {
+
         if(userInfo.password != req.body.data.password) {
-          res.json({ userExists : true, message : "Wrong password"});
+          res.json({ wrongPassword : true, message : "Wrong password"});
         } else {
 
           var token = jwt.sign(userInfo, app.get('pmSecret'), {
@@ -98,8 +107,33 @@ exports.jwtUserLogin = function(req, res) {
 
           userInfo.jwtToken = token;
           userInfo.save();
+          res.json({ userExists : true, username : userInfo.username, userToken : token, userDbId : userInfo._id, message : "uzytkownik istnieje, haslo sie zgadza" });
 
-      res.json({ userExists : true, username : userInfo.username, userToken : token, message : "uzytkownik istnieje, haslo sie zgadza" });
+          console.log(userInfo);
+
+           onlineStatus.findOneAndUpdate(
+
+            { 'userDbId' : userInfo._id },
+
+            {
+              'Online' : true,
+              'userDbId' : userInfo._id
+            },
+
+            { upsert : true, returnNewDocument : true },
+
+            function(err, statusResponse) {
+
+              if(err) throw err;
+
+              console.log(statusResponse);
+
+            }
+
+          )
+
+
+
         }
       }
 
@@ -133,6 +167,31 @@ exports.fbUserInfo = function(req, res) {
      function(err, success) {
 
        if(err) console.log("Blad: %s", err);
+
+       else {
+
+         onlineStatus.findOneAndUpdate(
+
+           { 'userDbId' : success._id },
+
+           {
+             'Online' : true,
+             'userDbId' : success._id
+           },
+
+           { upsert : true, returnNewDocument : true },
+
+           function(err, statusResponse) {
+
+             if(err) throw err;
+
+             console.log(statusResponse);
+
+           }
+
+         )
+
+       }
 
        res.send(success);
 
