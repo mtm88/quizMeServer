@@ -1,7 +1,6 @@
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
-
-
+var onlineStatus = require('../models/onlineStatus');
+var jwtUserData = require('../models/jwtUserData');
+var fbUserData = require('../models/fbUserData');
 
 var express = require('express');
 var app = express();
@@ -10,38 +9,6 @@ var jwt = require('jsonwebtoken');
 
 var secret = 'dupabizona';
 app.set('pmSecret', secret);
-
-var userSchema = new Schema ({
-
-    userID: String,
-    userEmail: String,
-    userFirstName: String,
-    userLastName: String,
-    userGender: String,
-    userAgeRange: String,
-    FBtoken: String,
-    userOrigin: String
-
-});
-
-var jwtUserSchema = new Schema ({
-
-  username: String,
-  password: String,
-  jwtToken: String
-
-});
-
-var onlineStatusSchema = new Schema ({
-
-  userDbId : String,
-  Online: Boolean
-
-});
-
-var userData = mongoose.model('User', userSchema);
-var jwtUserData = mongoose.model('jwtUser', jwtUserSchema);
-var onlineStatus = mongoose.model('onlineStatus', onlineStatusSchema);
 
 
 exports.registerNewUser = function(req, res) {
@@ -109,8 +76,6 @@ exports.jwtUserLogin = function(req, res) {
           userInfo.save();
           res.json({ userExists : true, username : userInfo.username, userToken : token, userDbId : userInfo._id, message : "uzytkownik istnieje, haslo sie zgadza" });
 
-          console.log(userInfo);
-
            onlineStatus.findOneAndUpdate(
 
             { 'userDbId' : userInfo._id },
@@ -122,11 +87,9 @@ exports.jwtUserLogin = function(req, res) {
 
             { upsert : true, returnNewDocument : true },
 
-            function(err, statusResponse) {
+            function(err) {
 
               if(err) throw err;
-
-              console.log(statusResponse);
 
             }
 
@@ -145,7 +108,7 @@ exports.jwtUserLogin = function(req, res) {
 
 exports.fbUserInfo = function(req, res) {
 
-   userData.findOneAndUpdate(
+   fbUserData.findOneAndUpdate(
 
      // find this ->
      { 'userID' : req.body.data.id },
@@ -181,11 +144,9 @@ exports.fbUserInfo = function(req, res) {
 
            { upsert : true, returnNewDocument : true },
 
-           function(err, statusResponse) {
+           function(err) {
 
              if(err) throw err;
-
-             console.log(statusResponse);
 
            }
 

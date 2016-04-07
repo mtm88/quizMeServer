@@ -39,6 +39,7 @@ mongoose.connection.on('connected', function () {
 
 
 
+app.post('/api/fbUserData', userData.fbUserInfo);
 
 app.post('/api/checkUsernameAvailability', userData.checkUsernameAvailability);
 
@@ -46,11 +47,10 @@ app.post('/api/registerNewUser', userData.registerNewUser);
 
 app.post('/api/jwtUserLogin', userData.jwtUserLogin);
 
-//app.post('/api/setOnlineStatus', friendList.setOnlineStatus);
+app.post('/api/setOnlineStatus', friendList.setOnlineStatus);
 
 app.use(function(req, res, next) {
 
-  console.log(req.body.FBverified);
   if (req.body.FBverified == true) {
     next();
   }
@@ -65,7 +65,7 @@ app.use(function(req, res, next) {
       if(err) {
         return res.json({ jwtTokenAuth: false, message: 'Failed to authenticate token'});
       } else {
-        res.json({ jwtTokenAuth: true, message: 'Token authenticated'});
+        console.log('Token received and authenticated');
         req.decoded = decoded;
         next();
 
@@ -85,7 +85,8 @@ app.use(function(req, res, next) {
 });
 
 
-app.post('/api/fbUserData', userData.fbUserInfo);
+
+app.post('/api/getFriendlist', friendList.getFriendlist);
 
 
 
