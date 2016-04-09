@@ -1,5 +1,7 @@
 var onlineStatus = require('../models/onlineStatus');
-var jwtUserData = require('../models/jwtUserData');
+
+var q = require('q');
+
 
 exports.setOnlineStatus = function(req, res) {
 
@@ -26,8 +28,28 @@ exports.setOnlineStatus = function(req, res) {
 
 exports.getFriendlist = function(req, res) {
 
+  var friendsArray = [];
+  var userDataOrigin = null;
 
-  jwtUserData.findOne (
+  setUserDataOrigin();
+
+  function setUserDataOrigin() {
+
+    var deferred = q.defer();
+
+  if(req.body.loginService == 'fb')
+    userDataOrigin = require('../models/fbUserData');
+  else if(req.body.loginService == 'jwt')
+    userDataOrigin = require('../models/jwtUserData');
+
+    deferred.resolve(userDataOrigin);
+
+    return deferred.promise;
+
+  }
+
+
+  userDataOrigin.findOne (
 
     { '_id' : req.body.userDbId },
 
@@ -41,36 +63,81 @@ exports.getFriendlist = function(req, res) {
 
       else {
 
-        jwtUserData.aggregate(
+        userDataOrigin.aggregate(
 
           [
-
-     //       { "$match" : { "_id" : req.body.userDbId }},
+            { "$match" : { "username" : userInfo.username }},
 
             { "$unwind" : "$friends" },
 
-
             { "$group" : {
-                  "_id" : "$_id",
+                  "_id" : "$username",
                   "count" : { "$sum" : 1 }
                   }
+            }
+          ]
+
+        ).exec(function(err, countResult) {
+
+          if(err) throw err;
+
+          userDataOrigin.aggregate(
+
+            [
+              { "$match" : { "username" : userInfo.username }},
+
+              { "$unwind" : "$friends" },
+
+              { "$group" : {
+                "_id" : "$friends"
+              } }
+            ]
+
+          ).exec(function(err, friendResult) {
+
+            if(err) throw err;
+
+
+            function asyncLoop( i, callback ) {
+
+              if ( i < countResult[0].count ) {
+
+                onlineStatus.findOneQ( { 'userDbId' : friendResult[i]._id.userDbId } )
+                  .then( function(user) {
+                    friendsArray.push({ username : friendResult[i]._id.username, userStatus : user.Online });
+                    asyncLoop( i+1, callback );
+                  })
+                  .catch(function(err) {
+                    console.log(err);
+                  })
+                  .done();
+
+              }
+
+              else {
+                callback();
+              }
 
             }
 
-          ]
+            asyncLoop( 0, function() {
 
-        ).exec(function(e, d) {
-          console.log(e);
-          console.log(d)
+              res.json({ userExists : true, friendList: friendsArray });
+
+            })
+
+
+
+          });
 
         });
 
 
-
-        res.json({ userExists : true, friendList: userInfo.friends });
       }
 
     }
+
+
 
   )
 

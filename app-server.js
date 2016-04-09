@@ -52,6 +52,7 @@ app.post('/api/setOnlineStatus', friendList.setOnlineStatus);
 app.use(function(req, res, next) {
 
   if (req.body.FBverified == true) {
+    console.log('auth by FB, forwarding');
     next();
   }
 

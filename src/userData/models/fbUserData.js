@@ -14,4 +14,4 @@ var userSchema = new Schema ({
 
 });
 
-module.exports = mongoose.model('fbUserData', userSchema);
+module.exports = mongoose.model('fbUser', userSchema);
