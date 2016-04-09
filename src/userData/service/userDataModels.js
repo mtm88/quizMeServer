@@ -116,7 +116,7 @@ exports.fbUserInfo = function(req, res) {
      // do updates
      {
        'userID' : req.body.data.id,
-       'userEmail' : req.body.data.email,
+       'username' : req.body.data.email,
        'userFirstName' : req.body.data.first_name,
        'userLastName' : req.body.data.last_name,
        'userGender' : req.body.data.gender,

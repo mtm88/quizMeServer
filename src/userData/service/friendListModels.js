@@ -3,6 +3,56 @@ var onlineStatus = require('../models/onlineStatus');
 var q = require('q');
 
 
+exports.friendFinder = function(req, res) {
+
+  // console.log(req.body.friendUsername);
+  var friendDataOrigin = null;
+
+  checkIfEmail();
+
+  function checkIfEmail() {
+
+    var deferred = q.defer();
+
+    if(req.body.friendUsername.indexOf('@') !== -1) {
+      friendDataOrigin = require('../models/fbUserData');
+    } else {
+      friendDataOrigin = require('../models/jwtUserData');
+    }
+
+    deferred.resolve(friendDataOrigin);
+
+    return deferred.promise;
+
+  }
+
+  friendDataOrigin.findOne(
+
+    { 'username' : req.body.friendUsername },
+
+    function(err, friendInfo) {
+
+      if(err) throw err;
+
+      if(!friendInfo) {
+        res.json({ friendExists : 'no' });
+      }
+
+      else {
+        res.json({ friendExists: 'yes', friendInfo : friendInfo });
+      }
+
+    }
+
+
+  )
+
+
+
+
+};
+
+
 exports.setOnlineStatus = function(req, res) {
 
   onlineStatus.findOneAndUpdate(
