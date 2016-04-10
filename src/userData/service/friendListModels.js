@@ -39,7 +39,14 @@ exports.friendFinder = function(req, res) {
       }
 
       else {
-        res.json({ friendExists: 'yes', friendInfo : friendInfo });
+        var filteredFriendInfo = {
+
+          'username' : friendInfo.username,
+          '_id' : friendInfo._id
+
+        };
+
+        res.json({ friendExists: 'yes', friendInfo : filteredFriendInfo });
       }
 
     }
@@ -154,7 +161,7 @@ exports.getFriendlist = function(req, res) {
 
                 onlineStatus.findOneQ( { 'userDbId' : friendResult[i]._id.userDbId } )
                   .then( function(user) {
-                    friendsArray.push({ username : friendResult[i]._id.username, userStatus : user.Online });
+                    friendsArray.push({ userDbId : friendResult[i]._id.userDbId, username : friendResult[i]._id.username, userStatus : user.Online });
                     asyncLoop( i+1, callback );
                   })
                   .catch(function(err) {
