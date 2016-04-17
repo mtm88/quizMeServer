@@ -1,11 +1,194 @@
 var onlineStatus = require('../models/onlineStatus');
+var mongoose = require('mongoose');
 
 var q = require('q');
+
+var searchedFriendDataOrigin;
+var userDataOrigin;
+
+  function setUserOrigin(userLoginService) {
+
+    var deferred = q.defer();
+
+    if(userLoginService == 'fb'){
+      userDataOrigin = require('../models/fbUserData');
+      deferred.resolve(userDataOrigin);
+    }
+    else {
+      userDataOrigin = require('../models/jwtUserData');
+      deferred.resolve(userDataOrigin);
+    }
+
+    return deferred.promise;
+
+  }
+
+exports.acceptInvite = function(req, res) {
+
+  setUserOrigin(req.body.loginService)
+    .then(function(userDataOrigin) {
+
+      userDataOrigin.findOneAndUpdate(
+
+        { '_id' : req.body.userDbId },
+
+            { $push  : {
+              'friends' : { 'username' : req.body.chosenUserData.username, 'userDbId' : req.body.chosenUserData.userDbId }
+            }
+        },
+
+        function(error, acceptingUserInfo) {
+
+          if(error) {
+            console.log('blad przy dodawaniu znajomego');
+            res.json({ friendAdded : false, friendRequestRemoved : false })
+          }
+
+          if(acceptingUserInfo) {
+
+            userDataOrigin.update(
+
+              { '_id' : req.body.userDbId },
+
+              { $pull : { receivedInvites :  { userDbId : req.body.chosenUserData.userDbId } } },
+
+              function(error, userInfo) {
+
+                if(error) {
+                  console.log('blad przy usuwaniu receivedInvite');
+                  res.json({ friendAdded : true, friendRequestRemoved : false })
+                }
+
+                if(userInfo) {
+
+                  console.log(userInfo);
+                  var friendDataOrigin = null;
+
+                  setFriendDataOrigin();
+
+                  function setFriendDataOrigin() {
+
+                    var deferred = q.defer();
+
+                  if(req.body.chosenUserData.username.indexOf('@') !== -1) {
+                    friendDataOrigin = require('../models/fbUserData');
+                    console.log('ustawiam frienddataorigin na fb');
+                    deferred.resolve();
+                  } else {
+                    friendDataOrigin = require('../models/jwtUserData');
+                    console.log('ustawiam frienddataorigin na jwt');
+                    deferred.resolve();
+                  }
+
+                    return deferred.promise;
+                  }
+
+
+                  friendDataOrigin.findOneAndUpdate (
+
+                    { '_id' : req.body.chosenUserData.userDbId },
+
+                    {
+                      $push: {
+                        'friends': {'username': acceptingUserInfo.username, 'userDbId': req.body.userDbId}
+                      }
+                    },
+
+                      function(error, success) {
+
+                        if(error) console.log('blad przy dodawaniu znajomego po drugiej stronie');
+
+                        if(success) {
+
+                          friendDataOrigin.update (
+
+                            { '_id' : req.body.chosenUserData.userDbId },
+
+                            { $pull : { sentInvites :  { userDbId : req.body.userDbId } } },
+
+                            function(error, success) {
+
+                              if(error) console.log('blad przy usuwaniu sentInvite po drugiej stronie');
+
+                              if(success)
+                                res.json({ friendAdded : true, friendRequestRemoved : true, friendAdded2ndSide : true, sentInviteRemoved2ndSide : true })
+
+                            }
+                          )
+                        }
+                      }
+                  );
+
+                }
+              }
+
+            )
+
+          }
+
+        }
+
+      )
+
+    });
+
+};
+
+exports.sendInvite = function(req, res) {
+
+  if(req.body.chosenUserData.friendUsername.indexOf('@') !== -1)
+    searchedFriendDataOrigin = require('../models/fbUserData');
+  else
+    searchedFriendDataOrigin = require('../models/jwtUserData');
+
+  if(req.body.loginService == 'fb')
+    userDataOrigin = require('../models/fbUserData');
+  else
+    userDataOrigin = require('../models/jwtUserData');
+
+
+  var currentTime = new Date();
+
+
+
+  // WYSLIJ REQUEST DO WYBRANEGO ZNAJOMEGO
+
+  searchedFriendDataOrigin.findOneAndUpdate(
+
+    { 'username' : req.body.chosenUserData.friendUsername },
+
+    { $push: {
+      "receivedInvites" : { userDbId : req.body.sendingUserDbId, username : req.body.sendingUsername, timeSent : currentTime }
+      }
+    },
+
+    function(err, searchedFriendData) {
+      if(err) throw err;
+
+      // JESLI UDALO SIE WYSLAC REQUEST DO ZNAJOMEGO DODAJ TA INFORMACJE W PROFILU UZYTKOWNIKA BY NIE MOGL WYSLAC GO DRUGI RAZ
+      userDataOrigin.findOneAndUpdate(
+
+        { '_id' : req.body.sendingUserDbId },
+
+          { $push: {
+            "sentInvites" : { userDbId : searchedFriendData._id, username : req.body.chosenUserData.friendUsername, timeSent : currentTime }
+            }
+        },
+
+        function(err) {
+          if(err) throw err;
+
+          res.json({ 'success' : true })
+
+        }
+      );
+    }
+  );
+};
 
 
 exports.friendFinder = function(req, res) {
 
-  // console.log(req.body.friendUsername);
   var friendDataOrigin = null;
 
   checkIfEmail();
@@ -16,11 +199,12 @@ exports.friendFinder = function(req, res) {
 
     if(req.body.friendUsername.indexOf('@') !== -1) {
       friendDataOrigin = require('../models/fbUserData');
+      deferred.resolve();
     } else {
       friendDataOrigin = require('../models/jwtUserData');
+      deferred.resolve();
     }
 
-    deferred.resolve(friendDataOrigin);
 
     return deferred.promise;
 
@@ -39,23 +223,100 @@ exports.friendFinder = function(req, res) {
       }
 
       else {
+
         var filteredFriendInfo = {
 
           'username' : friendInfo.username,
           '_id' : friendInfo._id
 
+
         };
 
-        res.json({ friendExists: 'yes', friendInfo : filteredFriendInfo });
+         // SPRAWDZ CZY WYSZUKIWANY UZYTKOWNIK MIAL JUZ WYSLANE ZAPROSZENIE PRZEZ TEGO UZYTKOWNIKA
+
+        var loggedUserDataOrigin;
+
+        setRightRequire();
+
+        function setRightRequire() {
+
+          var deferred = q.defer();
+
+        if(req.body.loginService == 'fb'){
+          loggedUserDataOrigin = require('../models/fbUserData');
+          deferred.resolve(loggedUserDataOrigin);
+        }
+        else {
+          loggedUserDataOrigin = require('../models/jwtUserData');
+          deferred.resolve(loggedUserDataOrigin);
+        }
+
+        return deferred.promise;
+
+        }
+
+
+        loggedUserDataOrigin.aggregate(
+
+          [
+            { "$match" : { "_id" : { $in: [ mongoose.Types.ObjectId(req.body.userDbId) ] }  } },
+
+            { "$unwind" : "$sentInvites" },
+
+            { "$group" : {
+              "_id" : "$_id",
+              "count" : { "$sum" : 1 }
+              }
+            }
+          ]
+
+        ).exec(function(err, countResults) {
+          console.log(countResults);
+          if (err) console.log('CountResult error, ' + err);
+
+
+
+          else if(countResults[0]) {
+
+              loggedUserDataOrigin.aggregate(
+                [
+                  { "$match": { "_id" : { $in: [ mongoose.Types.ObjectId(req.body.userDbId) ] } } },
+
+                  { "$unwind": "$sentInvites" },
+
+                  {
+                    "$group": {
+                      "_id": "$sentInvites"
+                    }
+                  }
+                ]
+              ).exec(function (err, sentInvite) {
+
+                var requestAlreadySent = false;
+
+                if (err) console.log('sentInvite error, ' + err);
+
+                for( i = 0; i < countResults[0].count; i++) {
+
+                  if(sentInvite[i]._id.userDbId == friendInfo._id) {
+                    requestAlreadySent = true;
+                  }
+
+                }
+
+                res.json({ friendExists: 'yes', requestAlreadySent : requestAlreadySent, friendInfo : filteredFriendInfo });
+
+              });
+          }
+
+          else {
+            res.json({ friendExists: 'yes', requestAlreadySent : false, friendInfo : filteredFriendInfo });
+          }
+
+        });
       }
-
     }
-
-
   )
-
-
-
 
 };
 
@@ -70,18 +331,16 @@ exports.setOnlineStatus = function(req, res) {
       'Online' : req.body.status
     },
 
-    function(err, statusResponse) {
+    function(err) {
 
       if(err) throw err;
 
       res.json({ 'Online status updated to' : req.body.status })
 
     }
-
   )
-
-
 };
+
 
 exports.getFriendlist = function(req, res) {
 
@@ -120,7 +379,7 @@ exports.getFriendlist = function(req, res) {
 
       else {
 
-        userDataOrigin.aggregate(
+          userDataOrigin.aggregate(
 
           [
             { "$match" : { "username" : userInfo.username }},
@@ -138,54 +397,60 @@ exports.getFriendlist = function(req, res) {
 
           if(err) throw err;
 
-          userDataOrigin.aggregate(
+            else if(countResult[0]) {
 
-            [
-              { "$match" : { "username" : userInfo.username }},
+                userDataOrigin.aggregate(
 
-              { "$unwind" : "$friends" },
+                  [
+                    { "$match" : { "username" : userInfo.username }},
 
-              { "$group" : {
-                "_id" : "$friends"
-              } }
-            ]
+                    { "$unwind" : "$friends" },
 
-          ).exec(function(err, friendResult) {
+                    { "$group" : {
+                      "_id" : "$friends"
+                    } }
+                  ]
 
-            if(err) throw err;
+                ).exec(function(err, friendResult) {
+
+                  if(err) throw err;
 
 
-            function asyncLoop( i, callback ) {
+                  function asyncLoop( i, callback ) {
 
-              if ( i < countResult[0].count ) {
+                    if ( i < countResult[0].count ) {
 
-                onlineStatus.findOneQ( { 'userDbId' : friendResult[i]._id.userDbId } )
-                  .then( function(user) {
-                    friendsArray.push({ userDbId : friendResult[i]._id.userDbId, username : friendResult[i]._id.username, userStatus : user.Online });
-                    asyncLoop( i+1, callback );
+                      onlineStatus.findOneQ( { 'userDbId' : friendResult[i]._id.userDbId } )
+                        .then( function(user) {
+                          friendsArray.push({ userDbId : friendResult[i]._id.userDbId, username : friendResult[i]._id.username, userStatus : user.Online });
+                          asyncLoop( i+1, callback );
+                        })
+                        .catch(function(err) {
+                          console.log(err);
+                        })
+                        .done();
+
+                    }
+
+                    else {
+                      callback();
+                    }
+
+                  }
+
+                  asyncLoop( 0, function() {
+
+                    res.json({ userExists : true, friendList: friendsArray, receivedInvites : userInfo.receivedInvites, username : userInfo.username });
+
                   })
-                  .catch(function(err) {
-                    console.log(err);
-                  })
-                  .done();
 
-              }
+                });
 
-              else {
-                callback();
-              }
+          }
 
-            }
-
-            asyncLoop( 0, function() {
-
-              res.json({ userExists : true, friendList: friendsArray });
-
-            })
-
-
-
-          });
+            else {
+            res.json({ userExists : true, username : userInfo.username, receivedInvites : userInfo.receivedInvites });
+          }
 
         });
 

@@ -10,7 +10,24 @@ var userSchema = new Schema ({
   userGender: String,
   userAgeRange: String,
   FBtoken: String,
-  userOrigin: String
+  userOrigin: String,
+
+  friends: {
+    username: String,
+    userDbId: String
+  },
+
+  receivedInvites: {
+    userDbId: String,
+    timeSent: String,
+    username: String
+  },
+
+  sentInvites: {
+    timeSent: String,
+    userDbId: String,
+    username: String
+  }
 
 });
 

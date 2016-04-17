@@ -89,6 +89,8 @@ app.use(function(req, res, next) {
 
 app.post('/api/getFriendlist', friendList.getFriendlist);
 app.post('/api/friendFinder', friendList.friendFinder);
+app.post('/api/sendInvite', friendList.sendInvite);
+app.post('/api/acceptInvite', friendList.acceptInvite);
 
 
 

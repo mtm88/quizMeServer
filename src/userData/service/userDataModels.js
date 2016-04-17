@@ -34,7 +34,7 @@ exports.registerNewUser = function(req, res) {
 };
 
 exports.checkUsernameAvailability = function(req, res) {
-console.log(req.body);
+
   jwtUserData.findOne({
     username: req.body.username
   }, function(error, userInfo) {
@@ -68,7 +68,9 @@ exports.jwtUserLogin = function(req, res) {
           res.json({ wrongPassword : true, message : "Wrong password"});
         } else {
 
-          var token = jwt.sign(userInfo, app.get('pmSecret'), {
+          var userFilteredData = { 'username' : userInfo.username, 'password' : userInfo.password };
+
+          var token = jwt.sign(userFilteredData, app.get('pmSecret'), {
             expiresIn: 86400
           });
 
@@ -92,14 +94,9 @@ exports.jwtUserLogin = function(req, res) {
               if(err) throw err;
 
             }
-
           )
-
-
-
         }
       }
-
 
   })
 
