@@ -11,11 +11,11 @@ var userDataOrigin;
     var deferred = q.defer();
 
     if(userLoginService == 'fb'){
-      userDataOrigin = require('../models/fbUserData');
+      userDataOrigin = require('../../global/models/fbUserData');
       deferred.resolve(userDataOrigin);
     }
     else {
-      userDataOrigin = require('../models/jwtUserData');
+      userDataOrigin = require('../../global/models/jwtUserData');
       deferred.resolve(userDataOrigin);
     }
 
@@ -71,11 +71,11 @@ exports.acceptInvite = function(req, res) {
                     var deferred = q.defer();
 
                   if(req.body.chosenUserData.username.indexOf('@') !== -1) {
-                    friendDataOrigin = require('../models/fbUserData');
+                    friendDataOrigin = require('../../global/models/fbUserData');
                     console.log('ustawiam frienddataorigin na fb');
                     deferred.resolve();
                   } else {
-                    friendDataOrigin = require('../models/jwtUserData');
+                    friendDataOrigin = require('../../global/models/jwtUserData');
                     console.log('ustawiam frienddataorigin na jwt');
                     deferred.resolve();
                   }
@@ -137,14 +137,14 @@ exports.acceptInvite = function(req, res) {
 exports.sendInvite = function(req, res) {
 
   if(req.body.chosenUserData.friendUsername.indexOf('@') !== -1)
-    searchedFriendDataOrigin = require('../models/fbUserData');
+    searchedFriendDataOrigin = require('../../global/models/fbUserData');
   else
-    searchedFriendDataOrigin = require('../models/jwtUserData');
+    searchedFriendDataOrigin = require('../../global/models/jwtUserData');
 
   if(req.body.loginService == 'fb')
-    userDataOrigin = require('../models/fbUserData');
+    userDataOrigin = require('../../global/models/fbUserData');
   else
-    userDataOrigin = require('../models/jwtUserData');
+    userDataOrigin = require('../../global/models/jwtUserData');
 
 
   var currentTime = new Date();
@@ -198,10 +198,10 @@ exports.friendFinder = function(req, res) {
     var deferred = q.defer();
 
     if(req.body.friendUsername.indexOf('@') !== -1) {
-      friendDataOrigin = require('../models/fbUserData');
+      friendDataOrigin = require('../../global/models/fbUserData');
       deferred.resolve();
     } else {
-      friendDataOrigin = require('../models/jwtUserData');
+      friendDataOrigin = require('../../global/models/jwtUserData');
       deferred.resolve();
     }
 
@@ -243,11 +243,11 @@ exports.friendFinder = function(req, res) {
           var deferred = q.defer();
 
         if(req.body.loginService == 'fb'){
-          loggedUserDataOrigin = require('../models/fbUserData');
+          loggedUserDataOrigin = require('../../global/models/fbUserData');
           deferred.resolve(loggedUserDataOrigin);
         }
         else {
-          loggedUserDataOrigin = require('../models/jwtUserData');
+          loggedUserDataOrigin = require('../../global/models/jwtUserData');
           deferred.resolve(loggedUserDataOrigin);
         }
 
@@ -354,9 +354,9 @@ exports.getFriendlist = function(req, res) {
     var deferred = q.defer();
 
   if(req.body.loginService == 'fb')
-    userDataOrigin = require('../models/fbUserData');
+    userDataOrigin = require('../../global/models/fbUserData');
   else if(req.body.loginService == 'jwt')
-    userDataOrigin = require('../models/jwtUserData');
+    userDataOrigin = require('../../global/models/jwtUserData');
 
     deferred.resolve(userDataOrigin);
 

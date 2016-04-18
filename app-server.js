@@ -2,20 +2,12 @@
  * Created by pc on 2016-03-26.
  */
 var userData = require('./src/userData/service/userDataModels');
-var friendList = require('./src/userData/service/friendListModels');
+var friendList = require('./src/friendList/services/friendListModels');
 
 var express = require('express'),
-cors = require('cors'),
-app = express(),
-http = require('http'),
+    cors = require('cors'),
+    app = express();
 
-server = http.createServer(app);
-
-var io = require('socket.io');
-
-io = io.listen(server);
-
-require('./sockets/base');
 
 app.use(cors());
 app.use(express.static('public'));
@@ -103,12 +95,15 @@ app.post('/api/acceptInvite', friendList.acceptInvite);
 
 
 
+var io = require('socket.io');
+var http = require('http'),
+    server = http.createServer(app);
 
+io = io.listen(server);
 
-
+require('./sockets/base')(io);
 
 app.set('port', (process.env.PORT || 5000));
 server.listen(app.get('port'), function() {
     console.log('Node app is running on port', app.get('port'));
 });
-

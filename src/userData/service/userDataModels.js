@@ -1,6 +1,6 @@
-var onlineStatus = require('../models/onlineStatus');
-var jwtUserData = require('../models/jwtUserData');
-var fbUserData = require('../models/fbUserData');
+var onlineStatus = require('../../friendList/models/onlineStatus');
+var jwtUserData = require('../../global/models/jwtUserData');
+var fbUserData = require('../../global/models/fbUserData');
 
 var express = require('express');
 var app = express();

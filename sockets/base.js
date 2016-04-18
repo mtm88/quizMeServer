@@ -4,9 +4,12 @@
 
 module.exports = function (io) {
 
+  console.log('test');
+
   'use strict';
 
   io.on('connection', function(socket) {
+    console.log('nowy user');
     socket.on('message', function(from, msg) {
 
       console.log('received message from', from, 'msg', JSON.stringify(msg));
