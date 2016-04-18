@@ -4,9 +4,18 @@
 var userData = require('./src/userData/service/userDataModels');
 var friendList = require('./src/userData/service/friendListModels');
 
-var express = require('express');
-var cors = require('cors');
-var app = express();
+var express = require('express'),
+cors = require('cors'),
+app = express(),
+http = require('http'),
+
+server = http.createServer(app);
+
+var io = require('socket.io');
+
+io = io.listen(server);
+
+require('./sockets/base');
 
 app.use(cors());
 app.use(express.static('public'));
@@ -99,7 +108,7 @@ app.post('/api/acceptInvite', friendList.acceptInvite);
 
 
 app.set('port', (process.env.PORT || 5000));
-app.listen(app.get('port'), function() {
+server.listen(app.get('port'), function() {
     console.log('Node app is running on port', app.get('port'));
 });
 
