@@ -3,10 +3,61 @@
  */
 var userData = require('./src/userData/service/userDataModels');
 var friendList = require('./src/friendList/services/friendListModels');
+var chatIo = require('./src/chat/chatIo');
 
-var express = require('express'),
-    cors = require('cors'),
-    app = express();
+var cors = require('cors');
+
+var express = require('express');
+var app = express();
+var server = require('http').Server(app);
+
+app.set('port', (process.env.PORT || 5000));
+server.listen(app.get('port'), function() {
+  console.log('Node app is running on port', app.get('port'));
+});
+
+var io = require('socket.io')(server);
+
+io.on('connect_error', function(data) {
+  console.log(' backend blad connect error');
+  console.log(data);
+});
+
+io.on('connection', function (socket) {
+
+      console.log('socket.io: user connected');
+
+          socket.on('disconnect', function() {
+            console.log('socket.io: user disconnected');
+          });
+
+          socket.on('chat message', function(message) {
+
+            console.log('message received at backend');
+            chatIo.chatMessage(message)
+              .then(function() {
+                 io.emit('chat message', message);
+              })
+
+          });
+
+          socket.on('get chat log', function() {
+
+            console.log('request for chat log received');
+
+            chatIo.getChatLog()
+              .then(function(response) {
+                console.log(response);
+                io.emit('chat log', response);
+
+          })
+
+  });
+
+
+
+});
+
 
 
 app.use(cors());
@@ -95,15 +146,5 @@ app.post('/api/acceptInvite', friendList.acceptInvite);
 
 
 
-var io = require('socket.io');
-var http = require('http'),
-    server = http.createServer(app);
 
-io = io.listen(server);
 
-require('./sockets/base')(io);
-
-app.set('port', (process.env.PORT || 5000));
-server.listen(app.get('port'), function() {
-    console.log('Node app is running on port', app.get('port'));
-});
