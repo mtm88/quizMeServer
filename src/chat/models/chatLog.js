@@ -8,7 +8,8 @@ var chatSchema = new Schema ({
   userID: String,
   chatLog: {
     user: String,
-    message: String
+    message: String,
+    timeAdded: String
   }
 
 });

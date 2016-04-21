@@ -6,8 +6,6 @@ var currentDate = new Date().toDateString();
 
 exports.chatMessage = function(message) {
 
-  var deferred = q.defer();
-
   chatSchema.findOneAndUpdate(
 
     { 'date' : currentDate },
@@ -20,7 +18,7 @@ exports.chatMessage = function(message) {
      */
       $push:
       {
-        chatLog: { 'user' : message.user, 'message' : message.message }
+        chatLog: { 'user' : message.user, 'message' : message.message, timeAdded : message.timeAdded }
       }
     },
 
@@ -30,17 +28,13 @@ exports.chatMessage = function(message) {
 
       if(error) {
         console.log(error);
-        deferred.reject(error);
       }
-
-
+      
       if(success) {
-        deferred.resolve(success);
+       // console.log(success);
       }
     }
   );
-
-  return deferred.promise;
 
 };
 

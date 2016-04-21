@@ -18,6 +18,8 @@ server.listen(app.get('port'), function() {
 
 var io = require('socket.io')(server);
 
+var usersConnected = 0;
+
 io.on('connect_error', function(data) {
   console.log(' backend blad connect error');
   console.log(data);
@@ -26,19 +28,20 @@ io.on('connect_error', function(data) {
 io.on('connection', function (socket) {
 
       console.log('socket.io: user connected');
+      usersConnected++;
+      io.emit('users online', usersConnected);
 
           socket.on('disconnect', function() {
             console.log('socket.io: user disconnected');
+            usersConnected--;
+            io.emit('users online', usersConnected);
           });
 
           socket.on('chat message', function(message) {
 
             console.log('message received at backend');
-            chatIo.chatMessage(message)
-              .then(function() {
+            chatIo.chatMessage(message); // no promise needed, it lagged the refresh of chatlog and DB chatlog is used only to load the log every time user opens the chat tab
                  io.emit('chat message', message);
-              })
-
           });
 
           socket.on('get chat log', function() {
@@ -49,8 +52,7 @@ io.on('connection', function (socket) {
               .then(function(response) {
                 console.log(response);
                 io.emit('chat log', response);
-
-          })
+          });
 
   });
 
