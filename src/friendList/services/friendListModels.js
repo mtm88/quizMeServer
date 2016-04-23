@@ -152,6 +152,7 @@ exports.sendInvite = function(req, res) {
 
 
   // WYSLIJ REQUEST DO WYBRANEGO ZNAJOMEGO
+  console.log(req.body);
 
   searchedFriendDataOrigin.findOneAndUpdate(
 
@@ -164,6 +165,8 @@ exports.sendInvite = function(req, res) {
 
     function(err, searchedFriendData) {
       if(err) throw err;
+
+      console.log(searchedFriendData);
 
       // JESLI UDALO SIE WYSLAC REQUEST DO ZNAJOMEGO DODAJ TA INFORMACJE W PROFILU UZYTKOWNIKA BY NIE MOGL WYSLAC GO DRUGI RAZ
       userDataOrigin.findOneAndUpdate(

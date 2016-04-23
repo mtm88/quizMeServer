@@ -42,7 +42,6 @@ io.on('connection', function (socket) {
 
     chatExports.getChatLog()
       .then(function(response) {
-        console.log(response);
         io.emit('chat log', response);
       });
 
