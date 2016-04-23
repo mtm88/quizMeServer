@@ -1,65 +1,53 @@
-var chatSchema = require('../../src/chat/models/chatLog');
+var chatExports = require('./services/chatExports');
 
-var q = require('q');
+var express = require('express');
+var app = express();
+var chat = require('http').Server(app);
 
-var currentDate = new Date().toDateString();
+chat.listen(5001, function() {
+  console.log('Chat server is now running at port 6000');
+});
 
-exports.chatMessage = function(message) {
+var io = require('socket.io')(chat);
 
-  chatSchema.findOneAndUpdate(
+io.on('connect_error', function(data) {
+  console.log(' backend blad connect error');
+  console.log(data);
+});
 
-    { 'date' : currentDate },
+var usersConnected = 0;
 
-    {
-     /* $set:
-      {
-        userID: message.user
-      },
-     */
-      $push:
-      {
-        chatLog: { 'user' : message.user, 'message' : message.message, timeAdded : message.timeAdded }
-      }
-    },
+io.on('connection', function (socket) {
 
-    { safe : true, upsert : true, new : true },
+  console.log('socket.io: user connected');
+  usersConnected++;
+  io.emit('users online', usersConnected);
 
-    function(error, success) {
+  socket.on('disconnect', function() {
+    console.log('socket.io: user disconnected');
+    usersConnected--;
+    io.emit('users online', usersConnected);
+  });
 
-      if(error) {
-        console.log(error);
-      }
-      
-      if(success) {
-       // console.log(success);
-      }
-    }
-  );
+  socket.on('chat message', function(message) {
 
-};
+    console.log('message received at backend');
+    chatExports.chatMessage(message); // no promise needed, it lagged the refresh of chatlog and DB chatlog is used only to load the log every time user opens the chat tab
+    io.emit('chat message', message);
+  });
 
-exports.getChatLog = function() {
+  socket.on('get chat log', function() {
 
-  var deferred = q.defer();
+    console.log('request for chat log received');
 
-  chatSchema.findOne(
+    chatExports.getChatLog()
+      .then(function(response) {
+        console.log(response);
+        io.emit('chat log', response);
+      });
 
-    { 'date' : currentDate },
+  });
 
-    function(error, success) {
-
-      if(error) {
-        console.log(error);
-        deferred.reject(error);
-      }
+});
 
 
-      if(success) {
-        deferred.resolve(success.chatLog);
-      }
-    }
-  );
-
-  return deferred.promise;
-
-};
