@@ -1,5 +1,4 @@
 var chatSchema = require('../models/chatLog');
-var q = require('q');
 
 var currentDate = new Date().toDateString();
 
@@ -37,9 +36,7 @@ exports.chatMessage = function(message) {
 
 };
 
-exports.getChatLog = function() {
-
-  var deferred = q.defer();
+exports.getChatLog = function(req, res) {
 
   chatSchema.findOne(
 
@@ -49,19 +46,16 @@ exports.getChatLog = function() {
 
       if(error) {
         console.log(error);
-        deferred.reject(error);
+        res.send(error);
       }
 
 
       if(success) {
-        deferred.resolve(success.chatLog);
+        res.send(success.chatLog);
       }
     }
   );
 
-  return deferred.promise;
-
 };
-/**
- * Created by pc on 2016-04-22.
- */
+
+
