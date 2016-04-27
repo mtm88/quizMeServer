@@ -38,7 +38,7 @@ exports.chatMessage = function(message) {
 
 exports.getChatLog = function(req, res) {
 
-  chatSchema.findOne(
+  chatSchema.find(
 
     { 'date' : currentDate },
 
@@ -51,7 +51,12 @@ exports.getChatLog = function(req, res) {
 
 
       if(success) {
-        res.send(success.chatLog);
+        if(!success.length) {
+          res.send({ noMessagesYet : true, message : 'No one spoke today yet' });
+        }
+        else {
+        res.send(success[0].chatLog);
+        }
       }
     }
   );
