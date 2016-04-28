@@ -3,9 +3,10 @@
  */
 var userData = require('./src/userData/service/userDataModels');
 var friendList = require('./src/friendList/services/friendListModels');
-var chatIOsocket = require('./src/chat/chatIo');
+var chatIOsocket = require('./src/chat/chatIo'); // chat socket server
 
 var chatServices = require('./src/chat/services/chatExports');
+var prvChatServices = require('./src/prvChat/services/prvChat');
 
 var cors = require('cors');
 
@@ -102,6 +103,8 @@ app.post('/api/sendInvite', friendList.sendInvite);
 app.post('/api/acceptInvite', friendList.acceptInvite);
 
 app.post('/api/getChatLog', chatServices.getChatLog);
+
+app.post('/api/submitPrvChatMsg', prvChatServices.getPrvChatLog);
 
 
 

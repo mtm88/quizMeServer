@@ -12,6 +12,12 @@ var userSchema = new Schema ({
   FBtoken: String,
   userOrigin: String,
 
+  chatLogs: {
+
+    username: String
+
+  },
+
   friends: {
     username: String,
     userDbId: String
