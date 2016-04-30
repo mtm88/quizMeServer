@@ -1,6 +1,12 @@
 var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
+var chatLogSchema = new Schema ({
+  userID: String,
+  message: String,
+  timeAdded: String
+});
+
 var userSchema = new Schema ({
 
   userID: String,
@@ -12,11 +18,10 @@ var userSchema = new Schema ({
   FBtoken: String,
   userOrigin: String,
 
-  chatLogs: {
-
-    username: String
-
-  },
+  chatLogs: [{
+    username: String,
+    chatLog: [chatLogSchema]
+  }],
 
   friends: {
     username: String,
@@ -36,5 +41,7 @@ var userSchema = new Schema ({
   }
 
 });
+
+
 
 module.exports = mongoose.model('fbUser', userSchema);

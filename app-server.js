@@ -104,7 +104,8 @@ app.post('/api/acceptInvite', friendList.acceptInvite);
 
 app.post('/api/getChatLog', chatServices.getChatLog);
 
-app.post('/api/submitPrvChatMsg', prvChatServices.getPrvChatLog);
+app.post('/api/getPrvChatLog', prvChatServices.getPrvChatLog);
+app.post('/api/sendPrvChatLogMsg', prvChatServices.sendPrvChatLogMsg);
 
 
 

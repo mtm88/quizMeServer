@@ -41,19 +41,6 @@ function setUserOrigin(userLoginService) {
 
                if(userInfo) {
 
-               /*  userDataOrigin.aggregate(
-
-                   [
-                     { $match : { username : "gerion" }}, { $project : { chatLogs : { $size : '$chatLogs' }}}
-
-                   ]
-
-                 ).exec(function(error, success) {
-                     if(error) console.log('blad');
-
-                     console.log(success);
-                   }); */
-
                  userDataOrigin.aggregate( [
                    { $match : { "_id" : { $in: [ mongoose.Types.ObjectId(req.body.userDbId) ] }  } },
                    { $unwind : '$chatLogs' },
@@ -62,7 +49,11 @@ function setUserOrigin(userLoginService) {
                    { $group : {_id : '$_id', chatLog : { $push : '$chatLogs.chatLog' }}}
                  ] )
                    .exec(function(error, success) {
-                     if(error) console.log(error);
+
+                     if(error) {
+                       console.log(error);
+                       console.log('blad przy pobieraniu private chatloga');
+                     }
 
                      if(success) {
                        res.send(success);
@@ -81,3 +72,84 @@ function setUserOrigin(userLoginService) {
         })
 
     };
+
+
+exports.sendPrvChatLogMsg = function(req, res) {
+
+  setUserOrigin(req.body.loginService)
+    .then(function() {
+
+      var date = new Date();
+      var dateToISO = date.toISOString();
+
+      userDataOrigin.update(
+        {'chatLogs.username': req.body.friendUsername },
+        {'$push': {
+          'chatLogs.$.chatLog': { 'userID' : req.body.userDbId, 'message' : req.body.message, 'timeAdded' : dateToISO }
+        }},
+
+        function(error, numAffected) {
+
+          if(error) {
+            console.log('wystapil blad przy pushu nowej wiadomosci');
+              console.log(error);
+          }
+
+          console.log(numAffected);
+
+          if(!numAffected) {
+            console.log('nima sukces');
+          }
+        }
+      );
+
+
+      function setFriendDataOrigin() {
+
+        var deferred = q.defer();
+
+        if(req.body.friendUsername.indexOf('@') !== -1) {
+          friendDataOrigin = require('../../global/models/fbUserData');
+          console.log('ustawiam frienddataorigin na fb');
+          deferred.resolve();
+        } else {
+          friendDataOrigin = require('../../global/models/jwtUserData');
+          console.log('ustawiam frienddataorigin na jwt');
+          deferred.resolve();
+        }
+
+        return deferred.promise;
+      }
+
+      setFriendDataOrigin()
+        .then(function() {
+
+          friendDataOrigin.update(
+            {'chatLogs.username': req.body.ownUsername },
+            {'$push': {
+              'chatLogs.$.chatLog': { 'userID' : req.body.userDbId, 'message' : req.body.message, 'timeAdded' : dateToISO }
+            }},
+
+            function(error, numAffected) {
+
+              if(error) {
+               console.log('wystapil blad przy pushu nowej wiadomosci');
+                console.log(error);
+              }
+
+              if(numAffected) {
+                console.log(numAffected);
+                res.send(numAffected);
+              }
+
+              if(!numAffected) {
+                console.log('nima sukces');
+              }
+            }
+
+          )
+        })
+    })
+
+
+};
