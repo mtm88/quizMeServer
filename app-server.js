@@ -2,13 +2,15 @@
  * Created by pc on 2016-03-26.
  */
 var userData = require('./src/userData/service/userDataModels');
-var friendList = require('./src/friendList/services/friendListModels');
+var friendList = require('./src/friendList/services/friendListServices');
 
 var chatIOsocket = require('./src/chat/chatIo'); // chat socket server
 var prvChatIOsocket = require('./src/prvChat/prvChatIo'); // chat socket server
 
 var chatServices = require('./src/chat/services/chatExports');
 var prvChatServices = require('./src/prvChat/services/prvChat');
+
+var quizQueServices = require('./src/quiz/services/quizServices');
 
 var cors = require('cors');
 
@@ -108,6 +110,9 @@ app.post('/api/getChatLog', chatServices.getChatLog);
 
 app.post('/api/getPrvChatLog', prvChatServices.getPrvChatLog);
 app.post('/api/sendPrvChatLogMsg', prvChatServices.sendPrvChatLogMsg);
+
+app.post('/api/addUserToQue', quizQueServices.addToQue);
+app.post('/api/removeUserFromQue', quizQueServices.removeFromQue);
 
 
 

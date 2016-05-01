@@ -33,7 +33,8 @@ exports.acceptInvite = function(req, res) {
         { '_id' : req.body.userDbId },
 
             { $push  : {
-              'friends' : { 'username' : req.body.chosenUserData.username, 'userDbId' : req.body.chosenUserData.userDbId }
+              'friends' : { 'username' : req.body.chosenUserData.username, 'userDbId' : req.body.chosenUserData.userDbId },
+              'chatLogs' : { 'username' : req.body.chosenUserData.username, 'chatLog' : [] }
             }
         },
 
@@ -90,7 +91,8 @@ exports.acceptInvite = function(req, res) {
 
                     {
                       $push: {
-                        'friends': {'username': acceptingUserInfo.username, 'userDbId': req.body.userDbId}
+                        'friends': {'username': acceptingUserInfo.username, 'userDbId': req.body.userDbId},
+                        'chatLogs': { 'username' : acceptingUserInfo.username, 'chatLog': [] }
                       }
                     },
 

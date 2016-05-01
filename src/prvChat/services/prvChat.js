@@ -41,6 +41,7 @@ function setUserOrigin(userLoginService) {
 
                if(userInfo) {
 
+
                  userDataOrigin.aggregate( [
                    { $match : { "_id" : { $in: [ mongoose.Types.ObjectId(req.body.userDbId) ] }  } },
                    { $unwind : '$chatLogs' },
