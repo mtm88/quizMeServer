@@ -74,18 +74,18 @@ function setUserOrigin(userLoginService) {
     };
 
 
-exports.sendPrvChatLogMsg = function(req, res) {
+exports.sendPrvChatLogMsg = function(message) {
 
-  setUserOrigin(req.body.loginService)
+  setUserOrigin(message.loginService)
     .then(function() {
 
       var date = new Date();
       var dateToISO = date.toISOString();
 
       userDataOrigin.update(
-        {'chatLogs.username': req.body.friendUsername },
+        {'chatLogs.username': message.friendName },
         {'$push': {
-          'chatLogs.$.chatLog': { 'userID' : req.body.userDbId, 'message' : req.body.message, 'timeAdded' : dateToISO }
+          'chatLogs.$.chatLog': { 'userID' : message.userDbId, 'message' : message.message, 'timeAdded' : dateToISO }
         }},
 
         function(error, numAffected) {
@@ -108,7 +108,7 @@ exports.sendPrvChatLogMsg = function(req, res) {
 
         var deferred = q.defer();
 
-        if(req.body.friendUsername.indexOf('@') !== -1) {
+        if(message.friendName.indexOf('@') !== -1) {
           friendDataOrigin = require('../../global/models/fbUserData');
           console.log('ustawiam frienddataorigin na fb');
           deferred.resolve();
@@ -125,9 +125,9 @@ exports.sendPrvChatLogMsg = function(req, res) {
         .then(function() {
 
           friendDataOrigin.update(
-            {'chatLogs.username': req.body.ownUsername },
+            {'chatLogs.username': message.ownUsername },
             {'$push': {
-              'chatLogs.$.chatLog': { 'userID' : req.body.userDbId, 'message' : req.body.message, 'timeAdded' : dateToISO }
+              'chatLogs.$.chatLog': { 'userID' : message.userDbId, 'message' : message.message, 'timeAdded' : dateToISO }
             }},
 
             function(error, numAffected) {
@@ -139,7 +139,6 @@ exports.sendPrvChatLogMsg = function(req, res) {
 
               if(numAffected) {
                 console.log(numAffected);
-                res.send(numAffected);
               }
 
               if(!numAffected) {

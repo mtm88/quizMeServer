@@ -3,7 +3,9 @@
  */
 var userData = require('./src/userData/service/userDataModels');
 var friendList = require('./src/friendList/services/friendListModels');
+
 var chatIOsocket = require('./src/chat/chatIo'); // chat socket server
+var prvChatIOsocket = require('./src/prvChat/prvChatIo'); // chat socket server
 
 var chatServices = require('./src/chat/services/chatExports');
 var prvChatServices = require('./src/prvChat/services/prvChat');

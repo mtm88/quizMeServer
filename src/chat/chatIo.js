@@ -5,7 +5,7 @@ var app = express();
 var chat = require('http').Server(app);
 
 chat.listen(5001, function() {
-  console.log('Chat server is now running at port 6000');
+  console.log('Chat server is now running at port 5001');
 });
 
 var io = require('socket.io')(chat);
