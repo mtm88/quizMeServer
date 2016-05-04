@@ -1,4 +1,5 @@
 var quizQueServices = require('./services/quizQueServices');
+var quizDataServices = require('./services/quizDataServices');
 
 var express = require('express');
 var app = express();
@@ -7,6 +8,8 @@ var quizQue = require('http').Server(app);
 quizQue.listen(5003, function() {
   console.log('Quiz Que server is now running at port 5003');
 });
+
+var matchedPlayers = '';
 
 var io = require('socket.io')(quizQue);
 
@@ -41,10 +44,56 @@ io.on('connection', function (socket) {
 
   socket.on('playersFound', function(userInfo) {
 
-    socket.broadcast.emit(userInfo.playerOne.userDbId + ' - opponent found', { 'matchFound' : true });
-    socket.broadcast.emit(userInfo.playerTwo.userDbId + ' - opponent found', { 'matchFound' : true });
+    matchedPlayers = userInfo;
+
+    socket.broadcast.emit(userInfo.playerOne.userDbId + ' - opponent found', { 'matchFound' : true, 'playersInfo' : userInfo });
+    socket.broadcast.emit(userInfo.playerTwo.userDbId + ' - opponent found', { 'matchFound' : true, 'playersInfo' : userInfo });
 
   });
+
+  socket.on('quizPrepared', function(userInfo) {
+
+    socket.broadcast.emit(userInfo.playerOne.userDbId + ' - quiz prepared', { 'quizPrepared' : true });
+    socket.broadcast.emit(userInfo.playerTwo.userDbId + ' - quiz prepared', { 'quizPrepared' : true });
+
+  });
+
+  socket.on('discardQuiz', function(userInfo) {
+
+    console.log(matchedPlayers);
+    var opponentArrayPosition = '';
+
+    if(matchedPlayers.playerOne.username == userInfo)
+      opponentArrayPosition = matchedPlayers.playerTwo.username;
+    else
+      opponentArrayPosition = matchedPlayers.playerOne.username;
+
+    quizDataServices.discardQuiz(userInfo)
+      .then(function(response) {
+        socket.broadcast.emit(opponentArrayPosition + ' - opponent resigned', { 'opponentResigned' : true });
+        socket.emit('quizDiscarded', response);
+      })
+
+  });
+
+  socket.on('user accepted quiz', function(userUsername) {
+    quizDataServices.userAcceptedQuiz(userUsername)
+      .then(function(response) {
+
+        console.log(response.opponentAcceptedQuiz);
+
+        if(response.opponentAcceptedQuiz == true) {
+          console.log('dupa');
+          socket.emit(userUsername + ' - opponent accepted quiz', response);
+        }
+        else {
+          console.log('dupa2');
+          socket.emit(userUsername + ' - opponent not yet accepted quiz', response);
+        }
+
+
+      })
+  })
 
 
 

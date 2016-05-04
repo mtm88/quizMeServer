@@ -81,7 +81,7 @@ exports.removeFromQue = function(userData) {
         });
       }
     }
-  )
+  );
 
   return deferred.promise;
 
