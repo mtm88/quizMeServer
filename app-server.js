@@ -6,11 +6,14 @@ var friendList = require('./src/friendList/services/friendListServices');
 
 var chatIOsocket = require('./src/chat/chatIo'); // chat socket server
 var prvChatIOsocket = require('./src/prvChat/prvChatIo'); // chat socket server
+var chatQueIOsocket = require('./src/chatQue/chatQueIo'); // quizQue socket server
+
+var playerSearcher = require('./src/chatQue/playerSearcher');
 
 var chatServices = require('./src/chat/services/chatExports');
 var prvChatServices = require('./src/prvChat/services/prvChat');
 
-var quizQueServices = require('./src/quiz/services/quizServices');
+var quizQueServices = require('./src/chatQue/services/quizQueServices');
 
 var cors = require('cors');
 
@@ -110,9 +113,6 @@ app.post('/api/getChatLog', chatServices.getChatLog);
 
 app.post('/api/getPrvChatLog', prvChatServices.getPrvChatLog);
 app.post('/api/sendPrvChatLogMsg', prvChatServices.sendPrvChatLogMsg);
-
-app.post('/api/addUserToQue', quizQueServices.addToQue);
-app.post('/api/removeUserFromQue', quizQueServices.removeFromQue);
 
 
 
