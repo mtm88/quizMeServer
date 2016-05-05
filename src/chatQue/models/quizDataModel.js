@@ -5,6 +5,7 @@ var Schema = mongoose.Schema;
 var quizDataSchema = new Schema({
 
   quizID : String,
+  quizStarted : Boolean,
   players: [{
   username: String,
   userDbId: String,

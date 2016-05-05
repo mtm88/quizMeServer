@@ -8,7 +8,8 @@ var chatIOsocket = require('./src/chat/chatIo'); // chat socket server
 var prvChatIOsocket = require('./src/prvChat/prvChatIo'); // chat socket server
 var chatQueIOsocket = require('./src/chatQue/chatQueIo'); // quizQue socket server
 
-var playerSearcher = require('./src/chatQue/playerSearcher');
+var playerSearcher = require('./src/chatQue/services/playerSearcher');
+var gameMatcher = require('./src/chatQue/services/gameMatcher');
 
 var chatServices = require('./src/chat/services/chatExports');
 var prvChatServices = require('./src/prvChat/services/prvChat');

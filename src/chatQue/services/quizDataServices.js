@@ -12,6 +12,7 @@ exports.fromQueToQuizData = function(chosenPlayers) {
     var Quiz = new quizDataModel({
 
       quizID : quizID,
+      quizStarted : false,
       players : [
 
         {
@@ -32,7 +33,6 @@ exports.fromQueToQuizData = function(chosenPlayers) {
   Quiz.save(function(error) {
         if(error) { console.log('blad przy dodawaniu usera w quizData: '); console.log(error); deferred.reject({ 'userAddedToQue' : false }) }
 
-        console.log('niby save');
         deferred.resolve({ 'userAddedToQuizData' : true });
       }
     );
@@ -49,36 +49,13 @@ exports.discardQuiz = function(userInfo) {
     { 'players.username' : userInfo },
     function(err, userData) {
 
-      if(userData.players.length == 1) {
-
         userData.remove(function(err) {
-          if(err) { console.log('blad przy usuwaniu ostatniego gracza w quizData'); console.log(err); deferred.reject(error); }
+          if(err) { console.log('blad przy usuwaniu gracza w quizData'); console.log(err); deferred.reject(error); }
 
           deferred.resolve({ 'userRemovedTogetherWithQuiz' : true })
         })
-      }
 
-      else {
 
-        quizDataModel.update(
-
-          { 'players.username' : userInfo },
-
-          { $pull : {
-            'players' : { username : userInfo }
-          }
-          },
-
-          function(error, userInData) {
-
-            if(error) { console.log('blad przy usuwaniu usera z quizData'); console.log(error); deferred.reject(error); }
-
-            if(userInData) {
-              deferred.resolve({ 'userRemovedFromQuizData' : true })
-            }
-
-          });
-      }
     }
   );
 
@@ -108,32 +85,58 @@ exports.userAcceptedQuiz = function(userUsername) {
 
       if(numAffected) {
         console.log(numAffected);
-
-        quizDataModel.find(
-          { 'players.username' : userUsername },
-          function(error, playersInfo) {
-            if(error) throw error;
-
-            if(playersInfo) {
-
-              if(playersInfo[0].players[0].acceptedQuiz == true && playersInfo[0].players[1].acceptedQuiz == true)
-              {
-                deferred.resolve({ 'userAcceptedQuiz' : true, 'opponentAcceptedQuiz' : true });
-              }
-
-              else {
-                deferred.resolve({ 'userAcceptedQuiz' : true, 'opponentAcceptedQuiz' : false });
-              }
-
-            }
-
-          }
-        )
-
+        deferred.resolve({ 'userAcceptedQuiz' : true });
       }
 
     });
 
   return deferred.promise;
+
+};
+
+
+exports.lookForPreparedGames = function() {
+
+  var deferred = q.defer();
+
+  quizDataModel.find(
+    { 'players.0.acceptedQuiz' : true, 'players.1.acceptedQuiz' : true, 'quizStarted' : false },
+    function(error, allQuizData) {
+
+      if(error) throw error;
+
+      deferred.resolve(allQuizData);
+    }
+
+  );
+
+  return deferred.promise;
+
+};
+
+exports.setAsStarted = function(quizID) {
+
+  var deferred = q.defer();
+
+  quizDataModel.update(
+    { 'quizID' : quizID },
+
+    { $set : {
+      'quizStarted' : true
+      }
+    },
+
+    function(error) {
+
+      if(error) throw error;
+
+      deferred.resolve({ 'setAsStarted' : true });
+
+    }
+
+  );
+
+  return deferred.promise;
+
 
 };

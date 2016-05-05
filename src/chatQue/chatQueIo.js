@@ -46,8 +46,8 @@ io.on('connection', function (socket) {
 
     matchedPlayers = userInfo;
 
-    socket.broadcast.emit(userInfo.playerOne.userDbId + ' - opponent found', { 'matchFound' : true, 'playersInfo' : userInfo });
-    socket.broadcast.emit(userInfo.playerTwo.userDbId + ' - opponent found', { 'matchFound' : true, 'playersInfo' : userInfo });
+    socket.broadcast.emit(userInfo.playerOne.userDbId + ' - opponent found', { 'matchFound' : true });
+    socket.broadcast.emit(userInfo.playerTwo.userDbId + ' - opponent found', { 'matchFound' : true });
 
   });
 
@@ -80,19 +80,16 @@ io.on('connection', function (socket) {
     quizDataServices.userAcceptedQuiz(userUsername)
       .then(function(response) {
 
-        console.log(response.opponentAcceptedQuiz);
-
-        if(response.opponentAcceptedQuiz == true) {
-          console.log('dupa');
-          socket.emit(userUsername + ' - opponent accepted quiz', response);
-        }
-        else {
-          console.log('dupa2');
-          socket.emit(userUsername + ' - opponent not yet accepted quiz', response);
-        }
-
+          socket.emit(userUsername + ' - user accepted quiz', response);
 
       })
+  });
+
+  socket.on('readyGameData', function(readyGameData) {
+
+    socket.broadcast.emit(readyGameData.players[0].userDbId + ' - readyToLoadGame', { 'readyToLoadGame' : true });
+    socket.broadcast.emit(readyGameData.players[1].userDbId + ' - readyToLoadGame', { 'readyToLoadGame' : true });
+
   })
 
 
