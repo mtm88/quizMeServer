@@ -7,6 +7,7 @@ var friendList = require('./src/friendList/services/friendListServices');
 var chatIOsocket = require('./src/chat/chatIo'); // chat socket server
 var prvChatIOsocket = require('./src/prvChat/prvChatIo'); // chat socket server
 var chatQueIOsocket = require('./src/chatQue/chatQueIo'); // quizQue socket server
+var chatGameIOsocket = require('./src/chatQue/chatGameIo'); // quizQue socket server
 
 var playerSearcher = require('./src/chatQue/services/playerSearcher');
 var gameMatcher = require('./src/chatQue/services/gameMatcher');

@@ -87,8 +87,10 @@ io.on('connection', function (socket) {
 
   socket.on('readyGameData', function(readyGameData) {
 
-    socket.broadcast.emit(readyGameData.players[0].userDbId + ' - readyToLoadGame', { 'readyToLoadGame' : true });
-    socket.broadcast.emit(readyGameData.players[1].userDbId + ' - readyToLoadGame', { 'readyToLoadGame' : true });
+    socket.broadcast.emit(readyGameData.allQuizData.players[0].userDbId + ' - readyToLoadGame',
+      { 'readyToLoadGame' : true, 'gameData' : readyGameData.allQuizData, 'firstCategory' : readyGameData.firstCategory });
+    socket.broadcast.emit(readyGameData.allQuizData.players[1].userDbId + ' - readyToLoadGame',
+      { 'readyToLoadGame' : true, 'gameData' : readyGameData.allQuizData, 'firstCategory' : readyGameData.firstCategory });
 
   })
 

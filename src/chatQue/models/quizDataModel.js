@@ -11,7 +11,14 @@ var quizDataSchema = new Schema({
   userDbId: String,
   difficulty: String,
   acceptedQuiz: Boolean
-  }]
+  }],
+  quizData: [
+
+    {
+      category: String
+    }
+
+  ]
 
 
 });

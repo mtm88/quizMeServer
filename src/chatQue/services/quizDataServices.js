@@ -1,4 +1,5 @@
 var quizDataModel = require('../models/quizDataModel');
+var quizCategoriesModel = require('../models/quizCategoriesModel');
 var q = require('q');
 
 
@@ -13,6 +14,7 @@ exports.fromQueToQuizData = function(chosenPlayers) {
 
       quizID : quizID,
       quizStarted : false,
+      quizData: [],
       players : [
 
         {
@@ -130,7 +132,33 @@ exports.setAsStarted = function(quizID) {
 
       if(error) throw error;
 
-      deferred.resolve({ 'setAsStarted' : true });
+      quizCategoriesModel.find(
+        {},
+        function(error, foundCategories) {
+
+          if(error) { console.log('blad przy roll category'); console.log(error); }
+
+          var rolledCategoryNumber = Math.floor(Math.random() * foundCategories.length);
+
+          quizDataModel.update(
+            { 'quizID' : quizID },
+
+            { $push : {
+                'quizData' : { 'category' : foundCategories[rolledCategoryNumber].category }
+              }
+            },
+
+            function(error, categoryData) {
+
+              if(error) { console.log('blad przy dodawaniu pierwszej kategori'); console.log(error); }
+
+              deferred.resolve({ 'setAsStarted' : true, 'firstCategory' : foundCategories[rolledCategoryNumber].category });
+
+            }
+          );
+
+        }
+      );
 
     }
 
