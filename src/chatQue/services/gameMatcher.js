@@ -31,9 +31,9 @@ function lookForReadyPlayers() {
 
           quizDataServices.setAsStarted(allQuizData[i].quizID)
             .then(function(data) {
-              quizGameServices.rollQuestions(data.firstCategory)
-                .then(function() {
-              var dataToEmit = { 'allQuizData' : allQuizData[i], 'firstCategory' : data.firstCategory };
+              quizGameServices.rollQuestions(data.firstCategory, allQuizData[i].quizID)
+                .then(function(questions) {
+              var dataToEmit = { 'allQuizData' : allQuizData[i], 'firstCategory' : data.firstCategory, 'questions' : questions };
                 socket.emit('readyGameData', dataToEmit);
                   i++;
 

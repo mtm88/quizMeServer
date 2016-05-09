@@ -1,4 +1,5 @@
 var quizGameServices = require('./services/quizGameServices');
+var quizDataServices = require('./services/quizDataServices');
 
 var express = require('express');
 var app = express();
@@ -18,8 +19,27 @@ io.on('connect_error', function(data) {
 
 io.on('connection', function (socket) {
 
-  console.log('User connected to Quiz GAME IO');
+  //console.log('User connected to Quiz GAME IO');
 
+  socket.on('get first questions', function(data) {
+
+    quizGameServices.bringQuestion(data.category, data.questions)
+      .then(function(questionsData) {
+        socket.emit('first questions data', questionsData);
+      })
+
+  });
+
+  socket.on('answer', function(typeOfAnswer, category, username, quizID, i) {
+
+    quizGameServices.updateGivenAnswer(typeOfAnswer, category, username, quizID, i)
+      .then(function() {
+
+
+
+      })
+
+  });
 
 });
 

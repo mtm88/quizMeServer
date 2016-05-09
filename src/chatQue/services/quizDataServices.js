@@ -20,12 +20,14 @@ exports.fromQueToQuizData = function(chosenPlayers) {
         {
           'username' : chosenPlayers.playerOne.username,
           'userDbId' : chosenPlayers.playerOne.userDbId,
-          'difficulty' : chosenPlayers.playerOne.difficulty
+          'difficulty' : chosenPlayers.playerOne.difficulty,
+          'answers' : []
         },
         {
           'username' : chosenPlayers.playerTwo.username,
           'userDbId' : chosenPlayers.playerTwo.userDbId,
-          'difficulty' : chosenPlayers.playerTwo.difficulty
+          'difficulty' : chosenPlayers.playerTwo.difficulty,
+          'answers' : []
         }
 
       ]
@@ -132,33 +134,10 @@ exports.setAsStarted = function(quizID) {
 
       if(error) throw error;
 
-      quizCategoriesModel.find(
-        {},
-        function(error, foundCategories) {
-
-          if(error) { console.log('blad przy roll category'); console.log(error); }
-
-          var rolledCategoryNumber = Math.floor(Math.random() * foundCategories.length);
-
-          quizDataModel.update(
-            { 'quizID' : quizID },
-
-            { $push : {
-                'quizData' : { 'category' : foundCategories[rolledCategoryNumber].category }
-              }
-            },
-
-            function(error, categoryData) {
-
-              if(error) { console.log('blad przy dodawaniu pierwszej kategori'); console.log(error); }
-
-              deferred.resolve({ 'setAsStarted' : true, 'firstCategory' : foundCategories[rolledCategoryNumber].category });
-
-            }
-          );
-
-        }
-      );
+      rollCategory(quizID)
+        .then(function(dataFromRollCategory) {
+      deferred.resolve({ 'setAsStarted' : true, 'firstCategory' : dataFromRollCategory.foundCategories[dataFromRollCategory.rolledCategoryNumber].category });
+        })
 
     }
 
@@ -168,3 +147,51 @@ exports.setAsStarted = function(quizID) {
 
 
 };
+
+
+function rollCategory(quizID, usedCategories) {
+
+  var deferredCategory = q.defer();
+
+    quizCategoriesModel.find(
+      {},
+      function(error, foundCategories) {
+
+        if(error) { console.log('blad przy roll category'); console.log(error); }
+
+        var rolledCategoryNumber = Math.floor(Math.random() * foundCategories.length);
+
+        if(usedCategories) {
+          for( i = 0 ; i < usedCategories.length ; i++) {
+
+            if(foundCategories[rolledCategoryNumber].category == usedCategories[i]) {
+              rollCategory(quizID, usedCategories);
+              break;
+            }
+
+          }
+        }
+
+        quizDataModel.update(
+          { 'quizID' : quizID },
+
+          { $push : {
+            'quizData' : { 'category' : foundCategories[rolledCategoryNumber].category, 'questions' : [] }
+          }
+          },
+
+          function(error) {
+
+            if(error) { console.log('blad przy dodawaniu pierwszej kategori'); console.log(error); }
+
+            deferredCategory.resolve({ 'foundCategories' : foundCategories, 'rolledCategoryNumber' : rolledCategoryNumber});
+
+          }
+        );
+
+      }
+    );
+
+  return deferredCategory.promise;
+
+}
