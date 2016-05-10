@@ -44,6 +44,8 @@ app.use(bodyParser.json({ type: 'application/vnd.api+json' }));
 
 app.use(morgan('dev'));
 
+
+
 var mongoose = require('mongoose');
 
 mongoose.connect('mongodb://mtm88:mtm88@ds025399.mlab.com:25399/heroku_lcq5b0x8');

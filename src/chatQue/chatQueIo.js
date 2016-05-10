@@ -46,6 +46,8 @@ io.on('connection', function (socket) {
 
     matchedPlayers = userInfo;
 
+    console.log('tu jestem 1');
+
     socket.broadcast.emit(userInfo.playerOne.userDbId + ' - opponent found', { 'matchFound' : true });
     socket.broadcast.emit(userInfo.playerTwo.userDbId + ' - opponent found', { 'matchFound' : true });
 

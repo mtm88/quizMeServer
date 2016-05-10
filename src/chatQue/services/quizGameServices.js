@@ -8,11 +8,17 @@ var q = require('q');
 exports.updateGivenAnswer = function(typeOfAnswer, category, username, quizID, i) {
 
   quizDataModel.update(
-    { 'quizID' : quizID, 'players.username' : username, 'players.answers.' },
+    { 'quizID' : quizID, 'players.username' : username },
     {
       $push : {
-        'players.$.answers
+        'players.$.answers' : 'test'
       }
+    },
+
+    function(error, numAffected) {
+      if(error) throw error;
+
+      console.log(numAffected);
     }
 
   )

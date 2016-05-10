@@ -8,7 +8,7 @@ lookforPlayers();
 
 
 function lookforPlayers() {
-  //console.log('checking for matched players...');
+  console.log('checking for matched players...');
   quizQueServices.matchPlayers()
     .then(function(chosenPlayers) {
 
@@ -21,12 +21,15 @@ function lookforPlayers() {
       else {
         quizQueServices.removeFromQue(chosenPlayers.playerOne)
           .then(function() {
+            console.log('a');
             quizQueServices.removeFromQue(chosenPlayers.playerTwo)
               .then(function() {
+                console.log('b');
                 socket.emit('playersFound', chosenPlayers);
                 setTimeout(function() {
                 quizDataServices.fromQueToQuizData(chosenPlayers)
                   .then(function() {
+                    console.log('c');
                     socket.emit('quizPrepared', chosenPlayers);
                   })
                 }, 1000)
