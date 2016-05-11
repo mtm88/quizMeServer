@@ -7,11 +7,13 @@ var q = require('q');
 
 exports.updateGivenAnswer = function(typeOfAnswer, category, username, quizID, i) {
 
+  var deferred = q.defer();
+
   quizDataModel.update(
     { 'quizID' : quizID, 'players.username' : username },
     {
       $push : {
-        'players.$.answers' : 'test'
+        'players.$.answers' : { 'category' : category, 'questionNumber' : i, 'answer' : typeOfAnswer }
       }
     },
 
@@ -19,11 +21,12 @@ exports.updateGivenAnswer = function(typeOfAnswer, category, username, quizID, i
       if(error) throw error;
 
       console.log(numAffected);
+      deferred.resolve();
     }
 
-  )
+  );
 
-
+  return deferred.promise;
 
 };
 

@@ -17,8 +17,6 @@ var prvChatServices = require('./src/prvChat/services/prvChat');
 
 var quizQueServices = require('./src/chatQue/services/quizQueServices');
 
-var cors = require('cors');
-
 var express = require('express');
 var app = express();
 
@@ -27,7 +25,11 @@ app.listen(app.get('port'), function() {
   console.log('Node app is running on port', app.get('port'));
 });
 
-app.use(cors());
+var cors = require('cors');
+
+// use it before all route definitions
+app.use(cors({origin: 'http://192.168.0.4:8100'}));
+
 app.use(express.static('public'));
 
 var multer  = require('multer');

@@ -31,15 +31,18 @@ io.on('connection', function (socket) {
   });
 
   socket.on('answer', function(typeOfAnswer, category, username, quizID, i) {
-
     quizGameServices.updateGivenAnswer(typeOfAnswer, category, username, quizID, i)
-      .then(function() {
-
-
-
-      })
-
   });
+
+
+  socket.on('category results', function(username, opponentData, myAnswers) {
+    console.log(username);
+    console.log(opponentData);
+    console.log(myAnswers);
+
+    socket.broadcast.emit(opponentData.userDbId + ' - opponent category results', myAnswers);
+
+  })
 
 });
 
