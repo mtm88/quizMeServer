@@ -148,6 +148,20 @@ exports.setAsStarted = function(quizID) {
 
 };
 
+exports.getNewCategory = function(quizID, usedCategories) {
+
+  var deferred = q.defer();
+console.log('a');
+  rollCategory(quizID, usedCategories)
+    .then(function(rolledCategory) {
+      console.log('b');
+      var categoryData = rolledCategory.foundCategories[rolledCategory.rolledCategoryNumber];
+      deferred.resolve(categoryData);
+    });
+
+  return deferred.promise;
+};
+
 
 function rollCategory(quizID, usedCategories) {
 
@@ -182,7 +196,7 @@ function rollCategory(quizID, usedCategories) {
 
           function(error) {
 
-            if(error) { console.log('blad przy dodawaniu pierwszej kategori'); console.log(error); }
+            if(error) { console.log('blad przy dodawaniu kategori'); console.log(error); }
 
             deferredCategory.resolve({ 'foundCategories' : foundCategories, 'rolledCategoryNumber' : rolledCategoryNumber});
 

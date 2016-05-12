@@ -1,7 +1,7 @@
 var quizQueServices = require('./quizQueServices');
 var quizDataServices = require('./quizDataServices');
 var chatQueIo = require('./../chatQueIo');
-var socket = require('socket.io-client')('http://192.168.0.4:5003');
+var socket = require('socket.io-client')('http://192.168.0.2:5003');
 
 
 lookforPlayers();
@@ -21,15 +21,12 @@ function lookforPlayers() {
       else {
         quizQueServices.removeFromQue(chosenPlayers.playerOne)
           .then(function() {
-            console.log('a');
             quizQueServices.removeFromQue(chosenPlayers.playerTwo)
               .then(function() {
-                console.log('b');
                 socket.emit('playersFound', chosenPlayers);
                 setTimeout(function() {
                 quizDataServices.fromQueToQuizData(chosenPlayers)
                   .then(function() {
-                    console.log('c');
                     socket.emit('quizPrepared', chosenPlayers);
                   })
                 }, 1000)

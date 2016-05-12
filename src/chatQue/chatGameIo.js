@@ -1,5 +1,8 @@
 var quizGameServices = require('./services/quizGameServices');
 var quizDataServices = require('./services/quizDataServices');
+var quizDrawServices = require('./services/quizDrawServices');
+
+
 
 var express = require('express');
 var app = express();
@@ -36,12 +39,24 @@ io.on('connection', function (socket) {
 
 
   socket.on('category results', function(username, opponentData, myAnswers) {
-    console.log(username);
-    console.log(opponentData);
-    console.log(myAnswers);
 
     socket.broadcast.emit(opponentData.userDbId + ' - opponent category results', myAnswers);
 
+  });
+
+
+  socket.on('add me to draws', function(quizID, userDbId, usedCategories) {
+
+    quizDrawServices.addMeToDraw(quizID, userDbId, usedCategories)
+      .then(function() {
+        console.log('niby dodany do draws');
+      });
+
+  });
+
+  socket.on('new rolled category', function(quizData, rolledCategory) {
+    socket.broadcast.emit(quizData[0].userDbId + ' - rolled category from draw', rolledCategory);
+    socket.broadcast.emit(quizData[1].userDbId + ' - rolled category from draw', rolledCategory);
   })
 
 });

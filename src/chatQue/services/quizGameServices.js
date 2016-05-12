@@ -20,7 +20,7 @@ exports.updateGivenAnswer = function(typeOfAnswer, category, username, quizID, i
     function(error, numAffected) {
       if(error) throw error;
 
-      console.log(numAffected);
+      //console.log(numAffected);
       deferred.resolve();
     }
 
@@ -50,7 +50,7 @@ exports.bringQuestion = function(category, questionNumber) {
 
         }
 
-        console.log(questionsData);
+        //console.log(questionsData);
         deferred.resolve(questionsData);
 
       }
@@ -81,7 +81,7 @@ exports.rollQuestions = function(category, quizID) {
 
         function rollThreeQuestions(i) {
 
-          console.log('i: %s', i);
+          //console.log('i: %s', i);
 
           if(i > 2) {
             updateDataModel(chosenQuestionsArray);
@@ -97,7 +97,7 @@ exports.rollQuestions = function(category, quizID) {
 
             var rolledNumber = Math.floor(Math.random() * foundQuestions.length);
 
-             console.log(chosenQuestionsArray.indexOf(rolledNumber));
+             //console.log(chosenQuestionsArray.indexOf(rolledNumber));
 
              if((chosenQuestionsArray.indexOf(rolledNumber)) !== -1) {
                 //console.log('ten numer jest juz w arrayu');

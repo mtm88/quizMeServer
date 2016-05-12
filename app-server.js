@@ -11,6 +11,7 @@ var chatGameIOsocket = require('./src/chatQue/chatGameIo'); // quizQue socket se
 
 var playerSearcher = require('./src/chatQue/services/playerSearcher');
 var gameMatcher = require('./src/chatQue/services/gameMatcher');
+var drawFinder = require('./src/chatQue/services/drawFinder');
 
 var chatServices = require('./src/chat/services/chatExports');
 var prvChatServices = require('./src/prvChat/services/prvChat');
@@ -27,8 +28,8 @@ app.listen(app.get('port'), function() {
 
 var cors = require('cors');
 
-// use it before all route definitions
-app.use(cors({origin: 'http://192.168.0.4:8100'}));
+app.use(cors());
+
 
 app.use(express.static('public'));
 
