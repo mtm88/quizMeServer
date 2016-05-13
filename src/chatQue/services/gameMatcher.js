@@ -1,7 +1,8 @@
 var quizDataServices = require('./quizDataServices');
 var quizGameServices = require('./quizGameServices');
 var chatQueIo = require('./../chatQueIo');
-var socket = require('socket.io-client')('http://192.168.0.2:5003');
+var chatQueSocket = require('socket.io-client')('http://192.168.0.2:5003');
+var chatGameSocket = require('socket.io-client')('http://192.168.0.2:5004');
 
 
 lookForReadyPlayers();
@@ -31,10 +32,19 @@ function lookForReadyPlayers() {
 
           quizDataServices.setAsStarted(allQuizData[i].quizID)
             .then(function(data) {
+
               quizGameServices.rollQuestions(data.firstCategory, allQuizData[i].quizID)
                 .then(function(questions) {
-              var dataToEmit = { 'allQuizData' : allQuizData[i], 'firstCategory' : data.firstCategory, 'questions' : questions };
-                socket.emit('readyGameData', dataToEmit);
+
+           //   var dataToEmit = { 'allQuizData' : allQuizData[i], 'firstCategory' : data.firstCategory };
+           //    chatQueSocket.emit('readyGameData', dataToEmit);
+
+                  quizGameServices.bringQuestions(data.firstCategory, questions, allQuizData[i])
+                    .then(function(questionsAndQuizData) {
+                      console.log(questionsAndQuizData[1]);
+                      chatQueSocket.emit('readyGameData', questionsAndQuizData[1], data.firstCategory, questionsAndQuizData[0])
+                    });
+
                   i++;
 
                   if(i < allQuizData.length)

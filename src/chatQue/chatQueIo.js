@@ -1,5 +1,6 @@
 var quizQueServices = require('./services/quizQueServices');
 var quizDataServices = require('./services/quizDataServices');
+var quizGameServices = require('./services/quizGameServices');
 
 var express = require('express');
 var app = express();
@@ -86,12 +87,25 @@ io.on('connection', function (socket) {
       })
   });
 
-  socket.on('readyGameData', function(readyGameData) {
+  socket.on('get questions', function(data) {
+    console.log('3');
+    quizGameServices.bringQuestions(data.category, data.questions)
+      .then(function(questionsData) {
+        console.log('3b');
+        socket.broadcast.emit('dupa', questionsData);
+      })
 
-    socket.broadcast.emit(readyGameData.allQuizData.players[0].userDbId + ' - readyToLoadGame',
-      { 'readyToLoadGame' : true, 'gameData' : readyGameData.allQuizData, 'firstCategory' : readyGameData.firstCategory, 'questions' : readyGameData.questions });
-    socket.broadcast.emit(readyGameData.allQuizData.players[1].userDbId + ' - readyToLoadGame',
-      { 'readyToLoadGame' : true, 'gameData' : readyGameData.allQuizData, 'firstCategory' : readyGameData.firstCategory, 'questions' : readyGameData.questions });
+  });
+
+
+  socket.on('readyGameData', function(allQuizData, firstCategory, questionsData) {
+
+    console.log(allQuizData);
+
+    socket.broadcast.emit(allQuizData.players[0].userDbId + ' - readyToLoadGame',
+      { 'readyToLoadGame' : true, 'gameData' : allQuizData, 'firstCategory' : firstCategory, 'questionsData' : questionsData });
+    socket.broadcast.emit(allQuizData.players[1].userDbId + ' - readyToLoadGame',
+      { 'readyToLoadGame' : true, 'gameData' : allQuizData, 'firstCategory' : firstCategory, 'questionsData' : questionsData });
 
   })
 

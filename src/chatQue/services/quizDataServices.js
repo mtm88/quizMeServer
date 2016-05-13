@@ -151,10 +151,9 @@ exports.setAsStarted = function(quizID) {
 exports.getNewCategory = function(quizID, usedCategories) {
 
   var deferred = q.defer();
-console.log('a');
+
   rollCategory(quizID, usedCategories)
     .then(function(rolledCategory) {
-      console.log('b');
       var categoryData = rolledCategory.foundCategories[rolledCategory.rolledCategoryNumber];
       deferred.resolve(categoryData);
     });

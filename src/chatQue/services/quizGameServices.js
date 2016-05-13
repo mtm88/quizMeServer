@@ -31,7 +31,7 @@ exports.updateGivenAnswer = function(typeOfAnswer, category, username, quizID, i
 };
 
 
-exports.bringQuestion = function(category, questionNumber) {
+exports.bringQuestions = function(category, questionNumber, quizData) {
 
   var questionsData = [];
 
@@ -51,7 +51,7 @@ exports.bringQuestion = function(category, questionNumber) {
         }
 
         //console.log(questionsData);
-        deferred.resolve(questionsData);
+        deferred.resolve([questionsData, quizData]);
 
       }
     }

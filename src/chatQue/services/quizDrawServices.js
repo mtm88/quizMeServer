@@ -4,9 +4,7 @@ var q = require('q');
 
 exports.addMeToDraw = function(quizID, userDbId, usedCategories) {
 
-  var deferred = q.defer();
-
-  quizDrawModel.findOneAndUpdate(
+  quizDrawModel.update(
 
     { 'quizID' : quizID },
     { $push : {
@@ -20,11 +18,8 @@ exports.addMeToDraw = function(quizID, userDbId, usedCategories) {
     function(error) {
       if(error) { console.log('blad przy dodawaniu usera do DrawData: '); console.log(error); }
 
-      deferred.resolve();
     }
   );
-
-  return deferred.promise;
 
 };
 
@@ -39,17 +34,11 @@ exports.lookForDraws = function() {
       if(error) throw error;
 
       if(gamesWithDraw) {
-
         deferred.resolve(gamesWithDraw);
-
-
       }
-
     }
   );
-
   return deferred.promise;
-
 };
 
 exports.removeDrawData = function(quizID) {

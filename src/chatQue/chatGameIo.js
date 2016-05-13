@@ -24,11 +24,12 @@ io.on('connection', function (socket) {
 
   //console.log('User connected to Quiz GAME IO');
 
-  socket.on('get first questions', function(data) {
-
-    quizGameServices.bringQuestion(data.category, data.questions)
+  socket.on('get questions', function(data) {
+    console.log('3');
+    quizGameServices.bringQuestions(data.category, data.questions)
       .then(function(questionsData) {
-        socket.emit('first questions data', questionsData);
+        console.log('3b');
+        socket.broadcast.emit('dupa', questionsData);
       })
 
   });
@@ -46,15 +47,14 @@ io.on('connection', function (socket) {
 
 
   socket.on('add me to draws', function(quizID, userDbId, usedCategories) {
-
-    quizDrawServices.addMeToDraw(quizID, userDbId, usedCategories)
-      .then(function() {
-        console.log('niby dodany do draws');
-      });
+    console.log('adding ' + userDbId + ' to draws!');
+    quizDrawServices.addMeToDraw(quizID, userDbId, usedCategories);
 
   });
 
   socket.on('new rolled category', function(quizData, rolledCategory) {
+    console.log(quizData);
+    console.log(rolledCategory);
     socket.broadcast.emit(quizData[0].userDbId + ' - rolled category from draw', rolledCategory);
     socket.broadcast.emit(quizData[1].userDbId + ' - rolled category from draw', rolledCategory);
   })
