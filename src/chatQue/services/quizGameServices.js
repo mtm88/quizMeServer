@@ -5,6 +5,54 @@ var q = require('q');
 
 
 
+exports.checkOpponentAnswers = function(userDbId, quizData, userAnswers, category) {
+
+  var deferred = q.defer();
+
+  var opponentNumberInArray = '';
+  var opponentAnswers = [];
+  var answer = '';
+
+  quizDataModel.find(
+    { quizID : quizData.quizID },
+    function(error, data) {
+      if(error) throw error;
+
+      if(data) {
+        //console.log(data);
+
+        if(data[0].players[0].userDbId != userDbId) {
+          opponentNumberInArray = 0;
+        } else {
+          opponentNumberInArray = 1;
+        }
+
+        for( i = 0 ; i < data[0].players[opponentNumberInArray].answers.length ; i++ ) {
+
+          if(data[0].players[opponentNumberInArray].answers[i].category == category) {
+            if(data[0].players[opponentNumberInArray].answers[i].answer == false) {
+              answer = "false";
+            } else {
+              answer = "true";
+            }
+            opponentAnswers.push({ 'correctAnswer' : answer, 'question' : i+1 })
+          }
+
+        }
+
+        deferred.resolve(opponentAnswers);
+      }
+
+      else {
+        deferred.resolve(opponentAnswers);
+      }
+    }
+  );
+
+  return deferred.promise;
+
+};
+
 exports.updateGivenAnswer = function(typeOfAnswer, category, username, quizID, i) {
 
   var deferred = q.defer();

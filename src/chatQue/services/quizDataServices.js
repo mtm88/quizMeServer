@@ -88,7 +88,7 @@ exports.userAcceptedQuiz = function(userUsername) {
       if(error) { console.log('blad przy usuwaniu usera z quizData'); console.log(error); deferred.reject(error); }
 
       if(numAffected) {
-        console.log(numAffected);
+        //console.log(numAffected);
         deferred.resolve({ 'userAcceptedQuiz' : true });
       }
 
@@ -172,37 +172,49 @@ function rollCategory(quizID, usedCategories) {
 
         if(error) { console.log('blad przy roll category'); console.log(error); }
 
-        var rolledCategoryNumber = Math.floor(Math.random() * foundCategories.length);
+        var rolledCategoryNumber = '';
+
 
         if(usedCategories) {
+
           for( i = 0 ; i < usedCategories.length ; i++) {
-
-            if(foundCategories[rolledCategoryNumber].category == usedCategories[i]) {
-              rollCategory(quizID, usedCategories);
-              break;
-            }
-
+            var usedCategoryPosition = foundCategories.indexOf(usedCategories[i]);
+            foundCategories.splice(usedCategoryPosition, 1);
+            console.log('wyciagam z arraya uzyta kategorie');
           }
+
+          rolledCategoryNumber = Math.floor(Math.random() * foundCategories.length);
+
+          quizDataModel.update(
+            { 'quizID' : quizID },
+
+            { $push : {
+              'quizData' : { 'category' : foundCategories[rolledCategoryNumber].category, 'questions' : [] }
+            }
+            },
+
+            function(error) {
+
+              if(error) { console.log('blad przy dodawaniu kategori'); console.log(error); }
+
+              deferredCategory.resolve({ 'foundCategories' : foundCategories, 'rolledCategoryNumber' : rolledCategoryNumber});
+
+            }
+          );
+
+
+
         }
 
-        quizDataModel.update(
-          { 'quizID' : quizID },
+        else {
 
-          { $push : {
-            'quizData' : { 'category' : foundCategories[rolledCategoryNumber].category, 'questions' : [] }
+          rolledCategoryNumber = Math.floor(Math.random() * foundCategories.length);
+
+          deferredCategory.resolve({ 'foundCategories' : foundCategories, 'rolledCategoryNumber' : rolledCategoryNumber});
+          
           }
-          },
 
-          function(error) {
-
-            if(error) { console.log('blad przy dodawaniu kategori'); console.log(error); }
-
-            deferredCategory.resolve({ 'foundCategories' : foundCategories, 'rolledCategoryNumber' : rolledCategoryNumber});
-
-          }
-        );
-
-      }
+        }
     );
 
   return deferredCategory.promise;

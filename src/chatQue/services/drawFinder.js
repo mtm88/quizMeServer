@@ -12,59 +12,52 @@ lookForDraws(i);
 
 function lookForDraws(i) {
 
-  //console.log('looking for draws...');
+ // console.log('looking for draws...');
 
   quizDrawServices.lookForDraws()
     .then(function(gamesWithDraw) {
 
-      if(gamesWithDraw.length > 0) {
+     if(gamesWithDraw.length > 0 && gamesWithDraw[i].players.length == 2) {
 
-          quizDataServices.getNewCategory(gamesWithDraw[i].quizID, gamesWithDraw[i].usedCategories);
-         /*   .then(function(rolledCategoryData) {
-              console.log('1');
-              console.log(gamesWithDraw[i].players);
-              console.log(rolledCategoryData);
-              socket.emit('new rolled category', gamesWithDraw[i].players, rolledCategoryData);
+          quizDataServices.getNewCategory(gamesWithDraw[i].quizID, gamesWithDraw[i].usedCategories)
+           .then(function(rolledCategoryData) {
 
-             // socket.broadcast.emit(gamesWithDraw[i].players[0].userDbId + ' - rolled category from draw', rolledCategoryData);
-             // socket.broadcast.emit(gamesWithDraw[i].players[1].userDbId + ' - rolled category from draw', rolledCategoryData);
+             // console.log(gamesWithDraw[i].players);
+             // console.log(rolledCategoryData);
+             // socket.emit('new rolled category', gamesWithDraw[i].players, rolledCategoryData);
 
-              quizGameServices.rollQuestions(rolledCategoryData.category, gamesWithDraw[i].quizID)
+
+             quizGameServices.rollQuestions(rolledCategoryData.category, gamesWithDraw[i].quizID)
                 .then(function(questionNumbers) {
-                  console.log('2');
-                  socket.emit('get questions', { 'category' : rolledCategoryData.category, 'questions' : questionNumbers, 'playersData' : gamesWithDraw[i].players });
-
+                  socket.emit('get questions', { 'category' : rolledCategoryData.category, 'questions' : questionNumbers, 'quizData' : gamesWithDraw[i] });
                 });
 
 
-              quizDrawServices.removeDrawData(gamesWithDraw[i].quizID)
-                .then(function() {
+                  quizDrawServices.removeDrawData(gamesWithDraw[i].quizID)
+                    .then(function() {
 
-                  i++;
+                      i++;
 
-                    if(i >= gamesWithDraw.length) {
-                      i = 0;
-                      setTimeout(function () {
-                        lookForDraws(i);
-                      }, 1000)
-                    }
+                        if(i >= gamesWithDraw.length) {
+                          i = 0;
+                          setTimeout(function () {
+                            lookForDraws(i);
+                          }, 1000)
+                        }
 
-                    else {
-                      lookForDraws(i);
-                    }
+                        else {
+                          lookForDraws(i);
+                        }
 
-                })
+                    })
 
-            }); */
-
-
-
+            });
 
 
       }
 
       else {
-        setTimeout(function () {
+       setTimeout(function () {
           lookForDraws(i);
         }, 1000)
       }

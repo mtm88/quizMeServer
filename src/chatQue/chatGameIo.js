@@ -25,11 +25,14 @@ io.on('connection', function (socket) {
   //console.log('User connected to Quiz GAME IO');
 
   socket.on('get questions', function(data) {
-    console.log('3');
-    quizGameServices.bringQuestions(data.category, data.questions)
+    quizGameServices.bringQuestions(data.category, data.questions, data.quizData)
       .then(function(questionsData) {
-        console.log('3b');
-        socket.broadcast.emit('dupa', questionsData);
+
+        for( i = 0 ; i < 2 ; i++ ) {
+        console.log('emitting: i = ' + i + ', to user: ' + questionsData[1].players[i].userDbId);
+        socket.broadcast.emit(questionsData[1].players[i].userDbId + ' - new questions data', questionsData[0], data.category);
+        }
+
       })
 
   });
@@ -39,9 +42,14 @@ io.on('connection', function (socket) {
   });
 
 
-  socket.on('category results', function(username, opponentData, myAnswers) {
+  socket.on('category results', function(userDbId, quizData, myAnswers, category) {
 
-    socket.broadcast.emit(opponentData.userDbId + ' - opponent category results', myAnswers);
+   quizGameServices.checkOpponentAnswers(userDbId, quizData, myAnswers, category)
+     .then(function(data) {
+       socket.emit(userDbId + ' - opponent category results', data);
+     });
+
+
 
   });
 
@@ -52,12 +60,6 @@ io.on('connection', function (socket) {
 
   });
 
-  socket.on('new rolled category', function(quizData, rolledCategory) {
-    console.log(quizData);
-    console.log(rolledCategory);
-    socket.broadcast.emit(quizData[0].userDbId + ' - rolled category from draw', rolledCategory);
-    socket.broadcast.emit(quizData[1].userDbId + ' - rolled category from draw', rolledCategory);
-  })
 
 });
 

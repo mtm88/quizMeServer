@@ -35,7 +35,7 @@ function lookforPlayers() {
               })
           });
 
-        console.log('Matching players found! emiting!');
+        //console.log('Matching players found! emiting!');
         setTimeout(function() {
           lookforPlayers();
         }, 3000)

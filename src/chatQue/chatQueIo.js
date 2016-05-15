@@ -87,20 +87,7 @@ io.on('connection', function (socket) {
       })
   });
 
-  socket.on('get questions', function(data) {
-    console.log('3');
-    quizGameServices.bringQuestions(data.category, data.questions)
-      .then(function(questionsData) {
-        console.log('3b');
-        socket.broadcast.emit('dupa', questionsData);
-      })
-
-  });
-
-
-  socket.on('readyGameData', function(allQuizData, firstCategory, questionsData) {
-
-    console.log(allQuizData);
+    socket.on('readyGameData', function(allQuizData, firstCategory, questionsData) {
 
     socket.broadcast.emit(allQuizData.players[0].userDbId + ' - readyToLoadGame',
       { 'readyToLoadGame' : true, 'gameData' : allQuizData, 'firstCategory' : firstCategory, 'questionsData' : questionsData });

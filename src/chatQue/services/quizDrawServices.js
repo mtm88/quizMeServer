@@ -8,8 +8,10 @@ exports.addMeToDraw = function(quizID, userDbId, usedCategories) {
 
     { 'quizID' : quizID },
     { $push : {
-      'players': { 'userDbId': userDbId },
-      'usedCategories' : usedCategories
+      'players': { 'userDbId': userDbId }
+      },
+      $set : {
+        'usedCategories' : usedCategories
       }
     },
 

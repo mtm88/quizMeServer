@@ -41,7 +41,7 @@ function lookForReadyPlayers() {
 
                   quizGameServices.bringQuestions(data.firstCategory, questions, allQuizData[i])
                     .then(function(questionsAndQuizData) {
-                      console.log(questionsAndQuizData[1]);
+                      //console.log(questionsAndQuizData[1]);
                       chatQueSocket.emit('readyGameData', questionsAndQuizData[1], data.firstCategory, questionsAndQuizData[0])
                     });
 
