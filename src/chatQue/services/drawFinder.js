@@ -27,9 +27,9 @@ function lookForDraws(i) {
              // socket.emit('new rolled category', gamesWithDraw[i].players, rolledCategoryData);
 
 
-             quizGameServices.rollQuestions(rolledCategoryData.category, gamesWithDraw[i].quizID)
+             quizGameServices.rollQuestions(rolledCategoryData, gamesWithDraw[i].quizID)
                 .then(function(questionNumbers) {
-                  socket.emit('get questions', { 'category' : rolledCategoryData.category, 'questions' : questionNumbers, 'quizData' : gamesWithDraw[i] });
+                  socket.emit('get questions', { 'category' : rolledCategoryData, 'questions' : questionNumbers, 'quizData' : gamesWithDraw[i] });
                 });
 
 

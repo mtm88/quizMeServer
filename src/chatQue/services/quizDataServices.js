@@ -168,28 +168,43 @@ function rollCategory(quizID, usedCategories) {
 
     quizCategoriesModel.find(
       {},
-      function(error, foundCategories) {
+      function(error, foundCategoriesData) {
 
         if(error) { console.log('blad przy roll category'); console.log(error); }
 
         var rolledCategoryNumber = '';
 
+        var arrayOfFoundCategories = [];
+
+        for( i = 0 ; i < foundCategoriesData.length ; i++ ) {
+          arrayOfFoundCategories.push(foundCategoriesData[i].category);
+        }
+
 
         if(usedCategories) {
 
+          console.log('foundCategories przed cieciem: ' + arrayOfFoundCategories.length);
+
           for( i = 0 ; i < usedCategories.length ; i++) {
-            var usedCategoryPosition = foundCategories.indexOf(usedCategories[i]);
-            foundCategories.splice(usedCategoryPosition, 1);
-            console.log('wyciagam z arraya uzyta kategorie');
+
+            var usedCategoryPosition = arrayOfFoundCategories.indexOf(usedCategories[i]);
+            console.log('used category position: ' + usedCategoryPosition);
+            console.log('wyciagam z arraya: ' + arrayOfFoundCategories[usedCategoryPosition]);
+            arrayOfFoundCategories.splice(usedCategoryPosition, 1);
+
           }
 
-          rolledCategoryNumber = Math.floor(Math.random() * foundCategories.length);
+          console.log('foundCategories po cieciu: ' + arrayOfFoundCategories.length);
+
+          rolledCategoryNumber = Math.floor(Math.random() * arrayOfFoundCategories.length);
+
+          console.log('wylosowana kategoria: ' + arrayOfFoundCategories[rolledCategoryNumber]);
 
           quizDataModel.update(
             { 'quizID' : quizID },
 
             { $push : {
-              'quizData' : { 'category' : foundCategories[rolledCategoryNumber].category, 'questions' : [] }
+              'quizData' : { 'category' : arrayOfFoundCategories[rolledCategoryNumber], 'questions' : [] }
             }
             },
 
@@ -197,7 +212,7 @@ function rollCategory(quizID, usedCategories) {
 
               if(error) { console.log('blad przy dodawaniu kategori'); console.log(error); }
 
-              deferredCategory.resolve({ 'foundCategories' : foundCategories, 'rolledCategoryNumber' : rolledCategoryNumber});
+              deferredCategory.resolve({ 'foundCategories' : arrayOfFoundCategories, 'rolledCategoryNumber' : rolledCategoryNumber});
 
             }
           );
@@ -208,10 +223,10 @@ function rollCategory(quizID, usedCategories) {
 
         else {
 
-          rolledCategoryNumber = Math.floor(Math.random() * foundCategories.length);
+          rolledCategoryNumber = Math.floor(Math.random() * foundCategoriesData.length);
 
-          deferredCategory.resolve({ 'foundCategories' : foundCategories, 'rolledCategoryNumber' : rolledCategoryNumber});
-          
+          deferredCategory.resolve({ 'foundCategories' : foundCategoriesData, 'rolledCategoryNumber' : rolledCategoryNumber});
+
           }
 
         }

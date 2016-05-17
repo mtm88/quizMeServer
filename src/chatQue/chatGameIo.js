@@ -44,12 +44,26 @@ io.on('connection', function (socket) {
 
   socket.on('category results', function(userDbId, quizData, myAnswers, category) {
 
-   quizGameServices.checkOpponentAnswers(userDbId, quizData, myAnswers, category)
-     .then(function(data) {
-       socket.emit(userDbId + ' - opponent category results', data);
-     });
+    checkForOpponentAnswers();
 
+    function checkForOpponentAnswers() {
 
+      quizGameServices.checkOpponentAnswers(userDbId, quizData, myAnswers, category)
+       .then(function(data) {
+
+        if(data.length < 3) {
+         setTimeout(function() {
+           checkForOpponentAnswers();
+         }, 1000);
+        }
+
+         else {
+         socket.emit(userDbId + ' - opponent category results', data);
+        }
+
+       });
+
+    }
 
   });
 
