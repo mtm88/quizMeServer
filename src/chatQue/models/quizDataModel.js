@@ -11,7 +11,11 @@ var quizDataSchema = new Schema({
   userDbId: String,
   difficulty: String,
   acceptedQuiz: Boolean,
-  answers: []
+  answers: [{
+    category: String,
+    questionNumber: Number,
+    answer: Boolean
+  }]
   }],
   quizData: [
 

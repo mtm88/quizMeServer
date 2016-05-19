@@ -52,13 +52,16 @@ io.on('connection', function (socket) {
        .then(function(data) {
 
         if(data.length < 3) {
+
+            console.log('nie ma jeszcze wszystkich odpowiedzi przeciwnika, czekam 1s');
+
          setTimeout(function() {
            checkForOpponentAnswers();
          }, 1000);
         }
 
          else {
-         socket.emit(userDbId + ' - opponent category results', data);
+          socket.emit(userDbId + ' - opponent category results', data);
         }
 
        });
@@ -67,12 +70,23 @@ io.on('connection', function (socket) {
 
   });
 
-
   socket.on('add me to draws', function(quizID, userDbId, usedCategories) {
     console.log('adding ' + userDbId + ' to draws!');
     quizDrawServices.addMeToDraw(quizID, userDbId, usedCategories);
 
   });
+
+
+  socket.on('get quiz results', function(quizID, userDbId) {
+    quizGameServices.getQuizResults(quizID, userDbId)
+      .then(function(answersArray) {
+
+        console.log(answersArray);
+        socket.emit('final quiz results', answersArray);
+
+      })
+  });
+
 
 
 });

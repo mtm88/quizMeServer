@@ -4,21 +4,43 @@ var q = require('q');
 
 exports.addMeToDraw = function(quizID, userDbId, usedCategories) {
 
-  quizDrawModel.update(
+  quizDrawModel.find(
 
-    { 'quizID' : quizID },
-    { $push : {
-      'players': { 'userDbId': userDbId }
-      },
-      $set : {
-        'usedCategories' : usedCategories
-      }
-    },
+    { 'quizID' : quizID, 'players.userDbId' : userDbId },
 
-    { upsert : true, returnNewDocument : true },
-
-    function(error) {
+  
+    function(error, foundPlayers) {
       if(error) { console.log('blad przy dodawaniu usera do DrawData: '); console.log(error); }
+
+
+      if(foundPlayers.length == 0) {
+        
+        console.log('no user data found in draws, adding...');
+
+        quizDrawModel.update(
+          { 'quizID' : quizID },
+
+          { $push : {
+            'players': { 'userDbId': userDbId }
+            },
+            $set : {
+              'usedCategories' : usedCategories
+            }
+          }, 
+
+          { upsert : true, returnNewDocument : true },
+
+          function(error) {
+            if(error) throw error;
+          }
+
+          )
+
+      }
+
+      else {
+        console.log('dane tego usera sa juz w draws, nie dodaje ponownie');
+      }
 
     }
   );

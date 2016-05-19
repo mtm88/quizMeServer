@@ -4,6 +4,46 @@ var quizDataModel = require('../models/quizDataModel');
 var q = require('q');
 
 
+exports.getQuizResults = function(quizID, userDbId) {
+
+  var deferred = q.defer();
+
+  var userPositionInArray = '';
+  var firstPlayerResult = 0;
+  var secondPlayerResult = 0;
+
+  quizDataModel.find(
+    { 'quizID' : quizID },
+    function(error, foundQuiz) {
+      if(error) throw error;
+
+      if(foundQuiz) {
+
+        if(foundQuiz[0].players[0].userDbId == userDbId)
+          userPositionInArray = 1;
+        else
+          userPositionInArray = 2;
+
+        for( i = 0 ; i < foundQuiz[0].players[0].answers.length ; i++ ) {
+          if(foundQuiz[0].players[0].answers[i].answer == true)
+            firstPlayerResult++;
+        }
+
+        for( i = 0 ; i < foundQuiz[0].players[1].answers.length ; i++ ) {
+          if(foundQuiz[0].players[1].answers[i].answer == true)
+            secondPlayerResult++;
+        }
+
+        deferred.resolve([userPositionInArray, firstPlayerResult, secondPlayerResult])
+      }
+
+    }
+  );
+
+  return deferred.promise;
+
+};
+
 
 exports.checkOpponentAnswers = function(userDbId, quizData, userAnswers, category) {
 
@@ -29,13 +69,11 @@ exports.checkOpponentAnswers = function(userDbId, quizData, userAnswers, categor
 
         for( i = 0 ; i < data[0].players[opponentNumberInArray].answers.length ; i++ ) {
 
-          if(data[0].players[opponentNumberInArray].answers[i].category == category) {
-            if(data[0].players[opponentNumberInArray].answers[i].answer == false) {
-              answer = "false";
-            } else {
-              answer = "true";
-            }
-            opponentAnswers.push({ 'correctAnswer' : answer, 'question' : i+1 })
+          console.log('to co widzi system: ');
+          console.log(data[0].players[opponentNumberInArray].answers[i].answer);
+
+          if(data[0].players[opponentNumberInArray].answers[i].category == category) {           
+            opponentAnswers.push({ 'correctAnswer' : data[0].players[opponentNumberInArray].answers[i].answer, 'question' : i+1 })
           }
 
         }

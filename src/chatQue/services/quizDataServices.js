@@ -5,7 +5,6 @@ var q = require('q');
 
 exports.fromQueToQuizData = function(chosenPlayers) {
 
-
     var deferred = q.defer();
 
     var quizID = Math.random().toString(36).replace(/[^a-z]+/g, '').substr(0, 10);
@@ -210,7 +209,7 @@ function rollCategory(quizID, usedCategories) {
 
             function(error) {
 
-              if(error) { console.log('blad przy dodawaniu kategori'); console.log(error); }
+              if(error) { console.log('blad przy dodawaniu kategorii'); console.log(error); }
 
               deferredCategory.resolve({ 'foundCategories' : arrayOfFoundCategories, 'rolledCategoryNumber' : rolledCategoryNumber});
 
@@ -224,12 +223,29 @@ function rollCategory(quizID, usedCategories) {
         else {
 
           rolledCategoryNumber = Math.floor(Math.random() * foundCategoriesData.length);
+          console.log('pierwsza wylosowana kategoria: ' + rolledCategoryNumber + foundCategoriesData[rolledCategoryNumber].category);
 
-          deferredCategory.resolve({ 'foundCategories' : foundCategoriesData, 'rolledCategoryNumber' : rolledCategoryNumber});
+          quizDataModel.update(
+            { 'quizID' : quizID },
 
-          }
+            { $push : {
+              'quizData' : { 'category' : foundCategoriesData[rolledCategoryNumber].category, 'questions' : [] }
+            }
+            },
 
+            function(error) {
+
+              if(error) { console.log('blad przy dodawaniu kategorii'); console.log(error); }
+
+              deferredCategory.resolve({ 'foundCategories' : foundCategoriesData, 'rolledCategoryNumber' : rolledCategoryNumber});
+
+            }
+          );
+        
         }
+
+      }
+
     );
 
   return deferredCategory.promise;
