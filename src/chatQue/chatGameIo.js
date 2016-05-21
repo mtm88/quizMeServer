@@ -88,8 +88,70 @@ io.on('connection', function (socket) {
   });
 
 
+  socket.on('bring categories to choose', function(usedCategories, quizID) {
+
+    var i = 0;
+    var temporaryModifiedArray = usedCategories;
+    var preparedCategories = [];
+
+    prepareArray(i);
+
+    function prepareArray(i) {
+
+      if(i < 3) {
+
+        quizDataServices.getNewCategory(quizID, temporaryModifiedArray)
+           .then(function(newRolledCategory) {
+              console.log('dodaje ' + newRolledCategory + ' do tymczasowego arraya');
+              preparedCategories.push(newRolledCategory);
+              i++;
+              prepareArray(i);
+           })
+
+       }
+
+       else {
+        socket.emit('prepared categories after loss', preparedCategories);
+       }
+
+    }      
+  });
+
+
+
+  socket.on('chosen category after loss', function(chosenCategory, quizData) {
+
+    console.log('wybrana kategoria: ' + chosenCategory);
+
+       quizGameServices.rollQuestions(chosenCategory, quizData.quizID)
+                .then(function(questionNumbers) {
+                  
+                  console.log('wylosowane pytania: ' + questionNumbers);
+
+                  quizGameServices.bringQuestions(chosenCategory, questionNumbers, quizData)
+                        .then(function(questionsData) {
+
+                          console.log('dane pytan: ');
+                          console.log(questionsData);
+
+                          for( i = 0 ; i < 2 ; i++ ) {
+                          console.log('emitting: i = ' + i + ', to user: ' + quizData.players[i].userDbId);
+                          io.emit(quizData.players[i].userDbId + ' - new questions data', questionsData[0], chosenCategory);
+                          }
+
+
+                        })
+
+                });
+
+    });
+
+
+
 
 });
+
+    
 
 
 
