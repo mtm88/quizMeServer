@@ -1,6 +1,7 @@
 var quizCategoriesModel = require('../models/quizCategoriesModel');
 var quizQuestionsModel = require('../models/quizQuestionsModel');
 var quizDataModel = require('../models/quizDataModel');
+var quizArchiveModel = require('../models/quizArchiveModel');
 var q = require('q');
 
 
@@ -227,5 +228,74 @@ exports.rollQuestions = function(category, quizID) {
   return deferred.promise;
 
 };
+
+
+
+exports.removeNotChosen = function(chosenCategory, categoriesToChoose, quizID) {
+
+  
+  for( i = 0 ; i < categoriesToChoose.length ; i++ ) {
+
+    if(categoriesToChoose[i] != chosenCategory) {
+
+      quizDataModel.update(
+
+        { 'quizID' : quizID },
+
+        { $pull : { quizData : { category : categoriesToChoose[i] } } } ,
+
+        function(error, success) {
+          if(error) throw error;
+
+          console.log(success);
+          console.log('wyciagam nieuzyta kategorie');
+
+        }
+      )
+    }
+  }
+
+};
+
+
+exports.moveToArchive = function(quizID) {
+
+  quizDataModel.find(
+    { 'quizID' : quizID },
+
+    function(error, quizFound) {
+      if(error) throw error;
+
+      if(quizFound.length > 0) {
+
+        console.log(quizFound[0]);
+
+        var quizToArchive = new quizArchiveModel ({
+
+            quizID : quizFound[0].quizID,
+            quizStarted : quizFound[0].quizStarted,
+            quizData: quizFound[0].quizData,
+            players : quizFound[0].players
+
+        });
+
+        quizToArchive.save(function(error) {
+          if(error) console.log('blad przy zapisywaniu w archiwum');
+        });
+
+        quizFound[0].remove(function(error) {
+          if(error) console.log('blad przy usuwaniu quizu z QuizData');
+        });
+
+      }
+
+      else {
+        console.log('Quiz propably already in archive');
+      }
+    }
+
+  )
+
+}
 
 

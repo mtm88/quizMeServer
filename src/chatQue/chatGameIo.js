@@ -104,6 +104,7 @@ io.on('connection', function (socket) {
            .then(function(newRolledCategory) {
               console.log('dodaje ' + newRolledCategory + ' do tymczasowego arraya');
               preparedCategories.push(newRolledCategory);
+              temporaryModifiedArray.push(newRolledCategory);
               i++;
               prepareArray(i);
            })
@@ -119,10 +120,13 @@ io.on('connection', function (socket) {
 
 
 
-  socket.on('chosen category after loss', function(chosenCategory, quizData) {
+  socket.on('chosen category after loss', function(chosenCategory, quizData, categoriesToChoose) {
 
     console.log('wybrana kategoria: ' + chosenCategory);
 
+
+       quizGameServices.removeNotChosen(chosenCategory, categoriesToChoose, quizData.quizID);
+       
        quizGameServices.rollQuestions(chosenCategory, quizData.quizID)
                 .then(function(questionNumbers) {
                   
@@ -145,6 +149,12 @@ io.on('connection', function (socket) {
                 });
 
     });
+
+
+  socket.on('move quiz to archive', function(quizID) {
+    console.log('odebralem request o przeniesienie do archiwum');
+    quizGameServices.moveToArchive(quizID);
+  })
 
 
 

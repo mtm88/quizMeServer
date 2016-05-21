@@ -251,3 +251,5 @@ function rollCategory(quizID, usedCategories) {
   return deferredCategory.promise;
 
 }
+
+
