@@ -1,8 +1,8 @@
 var quizDataServices = require('./quizDataServices');
 var quizGameServices = require('./quizGameServices');
 var chatQueIo = require('./../chatQueIo');
-var chatQueSocket = require('socket.io-client')('http://192.168.0.4:5003');
-var chatGameSocket = require('socket.io-client')('http://192.168.0.4:5004');
+var chatQueSocket = require('socket.io-client')('http://192.168.0.2:5003');
+var chatGameSocket = require('socket.io-client')('http://192.168.0.2:5004');
 
 
 lookForReadyPlayers();

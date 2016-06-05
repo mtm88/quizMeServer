@@ -25,10 +25,12 @@ exports.registerNewUser = function(req, res) {
     jwtToken: token
   });
 
-  newUser.save(function(err) {
+  newUser.save(function(err, savedData) {
     if(err) throw err;
 
-    res.json({ username : req.body.newUserData.username, userToken : token, success : true });
+    console.log(savedData);
+
+    res.json({ username : req.body.newUserData.username, userToken : token, success : true, userDbId : savedData._id });
   });
 
 };

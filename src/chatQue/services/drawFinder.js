@@ -3,7 +3,7 @@ var quizDataServices = require('./quizDataServices');
 var quizGameServices = require('./quizGameServices');
 
 var chatQueIo = require('./../chatQueIo');
-var socket = require('socket.io-client')('http://192.168.0.4:5004');
+var socket = require('socket.io-client')('http://192.168.0.2:5004');
 
 
 var i = 0;

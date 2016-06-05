@@ -328,6 +328,8 @@ exports.friendFinder = function(req, res) {
 
 exports.setOnlineStatus = function(req, res) {
 
+  console.log('tu jestem');
+
   onlineStatus.findOneAndUpdate(
 
     { 'userDbId' : req.body.userDbId },
@@ -336,9 +338,13 @@ exports.setOnlineStatus = function(req, res) {
       'Online' : req.body.status
     },
 
+    { upsert : true, returnNewDocument : true },
+
     function(err) {
 
       if(err) throw err;
+
+      console.log('niby dodalem w statusach');
 
       res.json({ 'Online status updated to' : req.body.status })
 
@@ -370,6 +376,8 @@ exports.getFriendlist = function(req, res) {
   }
 
 
+
+
   userDataOrigin.findOne (
 
     { '_id' : req.body.userDbId },
@@ -379,6 +387,7 @@ exports.getFriendlist = function(req, res) {
       if(err) throw err;
 
       else if(!userInfo) {
+        console.log(userInfo);
         res.json({ 'Error message' : 'Unable to find user' });
       }
 

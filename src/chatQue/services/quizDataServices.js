@@ -223,7 +223,7 @@ function rollCategory(quizID, usedCategories) {
         else {
 
           rolledCategoryNumber = Math.floor(Math.random() * foundCategoriesData.length);
-          console.log('pierwsza wylosowana kategoria: ' + rolledCategoryNumber + foundCategoriesData[rolledCategoryNumber].category);
+          //console.log('pierwsza wylosowana kategoria: ' + rolledCategoryNumber + ' ' + foundCategoriesData[rolledCategoryNumber].category);
 
           quizDataModel.update(
             { 'quizID' : quizID },
